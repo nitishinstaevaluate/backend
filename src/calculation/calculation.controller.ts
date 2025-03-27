@@ -1,7 +1,7 @@
-import { Controller,Get,Put,Post,Param, Query , Body, UseGuards} from '@nestjs/common';
+import { Controller,Get,Put,Post,Param, Query , Body, UseGuards, UsePipes, ValidationPipe} from '@nestjs/common';
 import { CalculationService} from './calculation.service';
 
-import { valuationWeightage } from "./dto/calculation.dto";
+import { valuationWeightage, WaccDTO } from "./dto/calculation.dto";
 import { AuthGuard } from '@nestjs/passport';
 import { KeyCloakAuthGuard } from 'src/middleware/key-cloak-auth-guard';
 
@@ -33,15 +33,10 @@ export class WaccController {
   constructor(private calculationService: CalculationService) { }
 
   @UseGuards(KeyCloakAuthGuard)
-  @Get('/adjcoe')
-  async find(
-    @Query('riskFreeRate') riskFreeRate: string,
-    @Query('expMarketReturn') expMarketReturn: string,
-    @Query('beta') beta: string,
-    @Query('riskPremium') riskPremium: string,
-    @Query('coeMethod') coeMethod: string,
+  @Post('/adjcoe')
+  async calculateAdjCoe(@Body() payload:any
   ): Promise<any> {
-    return this.calculationService.adjCOE(parseFloat(riskFreeRate), parseFloat(expMarketReturn), parseFloat(beta), parseFloat(riskPremium),coeMethod);
+    return this.calculationService.adjCOE(payload);
   }
 
   @UseGuards(KeyCloakAuthGuard)
@@ -66,25 +61,10 @@ export class WaccController {
   } 
   
   @UseGuards(KeyCloakAuthGuard)
-  @Get('/industryOrCompanyBasedWacc')
-  async calculateWacc(
-    @Query('adjCoe') adjCoe: string,
-    @Query('costOfDebt') costOfDebt: string,
-    @Query('copShareCapital') copShareCapital: string,
-    @Query('deRatio') deRatio: string,
-    @Query('type') type: string,
-    @Query('taxRate') taxRate: string,
-    @Query('excelSheetId') excelSheetId: string,
-    @Query('capitalStructure') capitalStructure: any = null
-    ): Promise<any> {
-    return this.calculationService.getWaccExcptTargetCapStrc(parseFloat(adjCoe),
-    excelSheetId,
-    parseFloat(costOfDebt),
-    parseFloat(copShareCapital),
-    parseFloat(deRatio),
-    type,
-    taxRate,
-    capitalStructure)
+  @Post('/industryOrCompanyBasedWacc')
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true}))
+  async calculateWacc(@Body(ValidationPipe) payload:WaccDTO) {
+    return this.calculationService.getWaccExcptTargetCapStrc(payload)
   } 
 
 }

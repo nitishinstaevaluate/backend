@@ -77,13 +77,13 @@ export class ValuationMethodsService {
 
   async Relative_Valuation_Method(
     inputs: any,
-    worksheet1: any,
-    worksheet2: any,
+    // worksheet1: any,
+    // worksheet2: any,
   ): Promise<any> {
     return await this.relativeValuationService.Relative_Valuation(
-      inputs,
-      worksheet1,
-      worksheet2,
+      inputs
+      // worksheet1,
+      // worksheet2,
     );
   }
 
@@ -102,30 +102,20 @@ export class ValuationMethodsService {
   }
 
   async Net_Asset_Value_method(
-    inputs: any,
-    worksheet1: any,
-    worksheet2: any,
+    inputs: any
   ): Promise<any> {
-    return await this.netAssetValueService.Net_Asset_Value(
-      inputs,
-      worksheet1,
-      worksheet2,
+    return await this.netAssetValueService.navValuation(
+      inputs
     );
   }
 
   async Market_Price_method(
     header, 
-    companyId, 
-    valuationDate, 
-    outstandingShares, 
-    reportingUnit
+    payload
   ): Promise<any> {
     return await this.marketPriceService.fetchPriceEquityShare(
       header, 
-      companyId, 
-      valuationDate, 
-      outstandingShares, 
-      reportingUnit
+      payload
     );
   }
 }

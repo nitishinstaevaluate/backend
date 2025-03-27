@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, NotFoundException } from "@nestjs/common";
 import { ValuationsService } from "./valuationProcess.service";
-import { ProcessStatusManagerService } from "src/processStatusManager/process-status-manager.service";
+import { ProcessStatusManagerService } from "src/processStatusManager/service/process-status-manager.service";
 import { MODEL } from "src/constants/constants";
 import { TerminalValueWorkingDto } from "./dto/valuations.dto";
 import { convertToNumberOrZero } from "src/excelFileServices/common.methods";
@@ -23,9 +23,13 @@ export class terminalValueWorkingService{
             if(!boolContainsDcf)
                 throw new NotFoundException({msg:'DCF model not found'}).getResponse();
 
+            let isFCFE = false;
             valuationResult.map((indValuation)=>{
                 if(indValuation.model === MODEL[0] || indValuation.model === MODEL[1]){
                     dcfValuation = indValuation;
+                }
+                if(indValuation.model === MODEL[0]){
+                    isFCFE = true;
                 }
             })
             const dcfTerminalYearValuationData = dcfValuation.terminalYearWorking;
@@ -33,7 +37,7 @@ export class terminalValueWorkingService{
 
             let terminalValueWorking = new TerminalValueWorkingDto();
             terminalValueWorking.terminalGrowthRate = valuationModelResult.inputData[0].terminalGrowthRate;
-            terminalValueWorking.costOfEquity = valuationModelResult.inputData[0].adjustedCostOfEquity;
+            terminalValueWorking.costOfEquity = isFCFE ? valuationModelResult.inputData[0].adjustedCostOfEquity : valuationModelResult.inputData[0].wacc;
 
             // dcfValuationData.map((indElements)=>{
             //     if(indElements.particulars === 'Terminal Value'){

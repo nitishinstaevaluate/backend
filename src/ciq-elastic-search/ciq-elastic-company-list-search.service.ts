@@ -146,10 +146,33 @@ export class ciqElasticCompanyListSearchService {
             companyList.map((elements)=>{
                 companyId.push(elements.COMPANYID)
             })
+            // const criteria = {
+            //     query:{
+            //         bool :{
+            //             must:[
+            //                 {
+            //                     terms: {
+            //                         [elasticSearchKey.COMPANYID]: companyId
+            //                     }
+            //                 },{
+            //                     term:{
+            //                         [elasticSearchKey.PRICINGDATE]:`${convertUnixTimestampToQuarterAndYear(date).date.toISOString()}`
+            //                     }
+            //                 }
+            //             ]
+            //         }
+            //                 //     sort : [
+            //         { 
+            //             [elasticSearchKey.PRICINGDATE] : {
+            //                 "order" : "desc"
+            //             }
+            //         },
+            //       ]
+            // }
             const criteria = {
-                query:{
-                    bool :{
-                        must:[
+                query: {
+                    bool: {
+                        must: [
                             {
                                 terms: {
                                     [elasticSearchKey.COMPANYID]: companyId
@@ -162,19 +185,41 @@ export class ciqElasticCompanyListSearchService {
                         ]
                     }
                 },
-                sort : [
-                    { 
-                        [elasticSearchKey.PRICINGDATE] : {
-                            "order" : "desc"
+                aggs: {
+                    unique_company: {
+                        terms: {
+                            field: elasticSearchKey.COMPANYID,
+                            size: 1000
+                        },
+                        aggs: {
+                            top_company_hits: {
+                                top_hits: {
+                                    size: 1, // Get only the top record
+                                    sort: [
+                                        {
+                                            [elasticSearchKey.PRICINGDATE]: {
+                                                order: "desc" // Sorting by the latest date
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
                         }
-                    },
-                  ]
-            }
+                    }
+                }
+            };
+            
             const companyMarketData = await this.elasticSearchClientService.search(elasticSearchIndex.ciqmarketcap, criteria);
 
+            
+            const companyMarketDetailsList = [];
+            companyMarketData.aggregations.unique_company.buckets.forEach(bucket => {
+                const topHit = bucket.top_company_hits.hits.hits[0]._source;
+                companyMarketDetailsList.push(topHit);
+            });
             for await(const individualCompanyDetails of companyList){
                 let marketCapFound = false;
-                for await(const individualMarketCapOfCompany of companyMarketData.data){
+                for await(const individualMarketCapOfCompany of companyMarketDetailsList){
                     if(individualMarketCapOfCompany.COMPANYID === individualCompanyDetails.COMPANYID){
                         companyDetailsList.push({ ...individualCompanyDetails, ...individualMarketCapOfCompany});
                         marketCapFound = true;

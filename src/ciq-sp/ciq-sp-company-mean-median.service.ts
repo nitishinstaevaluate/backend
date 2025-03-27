@@ -113,6 +113,10 @@ export class ciqSpCompanyMeanMedianService {
                 pbRatio: data[MNEMONIC_ENUMS.IQ_PBV][i],
                 sales: data[MNEMONIC_ENUMS.IQ_PRICE_SALES][i],
                 ebitda: data[MNEMONIC_ENUMS.IQ_TEV_EBITDA][i],
+                /**
+                 * Ensure all companies to be selected by default
+                 */
+                isSelected:true
               }
             )
           }

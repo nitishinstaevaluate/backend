@@ -3,9 +3,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { date } from 'joi';
 import { Model } from 'mongoose';
 import { formatDateToMMDDYYYY } from 'src/ciq-sp/ciq-common-functions';
+import { COST_OF_EQUITY_METHOD, EXCEL_CONVENTION } from 'src/constants/constants';
 import { HistoricalReturnsService } from 'src/data-references/data-references.service';
-import { convertToNumberOrZero } from 'src/excelFileServices/common.methods';
-import { CapitalStruc, getShareholderFunds } from 'src/excelFileServices/fcfeAndFCFF.method';
+import { convertToNumberOrZero, getDateKey } from 'src/excelFileServices/common.methods';
+import { CapitalStruc, capitalStructureComputation, getShareholderFunds } from 'src/excelFileServices/fcfeAndFCFF.method';
 import { thirdpartyApiAggregateService } from 'src/library/thirdparty-api/thirdparty-api-aggregate.service';
 import { CustomLogger } from 'src/loggerService/logger.service';
 import { RiskFreeRateDocument } from 'src/masters/schema/masters.schema';
@@ -25,20 +26,51 @@ export class CalculationService {
     private readonly riskFreeRateModel: Model<RiskFreeRateDocument>,
     private customLogger: CustomLogger,
     private historicalReturnsService: HistoricalReturnsService,
-    private thirdpartyApiService: thirdpartyApiAggregateService
+    private thirdpartyApiService: thirdpartyApiAggregateService,
+    private fcfeService: FCFEAndFCFFService
   ) { }
 
-  async adjCOE(riskFreeRate, expMarketReturn, beta, riskPremium, coeMethod): Promise<any> {
+  async adjCOE(payload): Promise<any> {
+    let adjustedCostOfEquity = 0, costOfEquity = 0;   
 
-    //Cost of Equity Calculation based on CAPM Method
-    const COECalculation =
-      riskFreeRate + (expMarketReturn - riskFreeRate) * beta;
+    const { riskFreeRate, expMarketReturn, beta, riskPremium, coeMethod, industryRiskPremium, sizePremium } = payload;
 
-    const adjustedCostOfEquity = COECalculation + riskPremium;
+    const fieldNotFound = (field) =>{
+       return {
+        result: {
+          coe: 0,
+          adjCOE: 0,
+          method: coeMethod
+        },
+        message: `${field} not found`,
+        status: false
+      }
+    }
+    if(coeMethod === COST_OF_EQUITY_METHOD.capm.key){
+      if(!beta) return fieldNotFound('beta');
+      if(!expMarketReturn) return fieldNotFound('expMarketReturn');
+      if(!riskFreeRate) return fieldNotFound('riskFreeRate');
 
+      costOfEquity = convertToNumberOrZero(riskFreeRate) + (convertToNumberOrZero(expMarketReturn) - convertToNumberOrZero(riskFreeRate)) * convertToNumberOrZero(beta);
+      adjustedCostOfEquity = costOfEquity + convertToNumberOrZero(riskPremium);
+    }
+    else if(coeMethod === COST_OF_EQUITY_METHOD.buildUpCapm.key){
+      if(!sizePremium) return fieldNotFound('sizePremium');
+      if(!industryRiskPremium) return fieldNotFound('industryRiskPremium');
+      if(!expMarketReturn) return fieldNotFound('expMarketReturn');
+      if(!riskFreeRate) return fieldNotFound('riskFreeRate');
+
+      costOfEquity = convertToNumberOrZero(riskFreeRate) + 
+      (
+        convertToNumberOrZero(expMarketReturn) - convertToNumberOrZero(riskFreeRate)
+      ) + 
+      convertToNumberOrZero(industryRiskPremium) + convertToNumberOrZero(sizePremium);
+
+      adjustedCostOfEquity = costOfEquity + convertToNumberOrZero(riskPremium);
+    }
     return {
       result: {
-        coe: COECalculation ,
+        coe: costOfEquity ,
         adjCOE: adjustedCostOfEquity ,
         method: coeMethod
       },
@@ -63,51 +95,49 @@ export class CalculationService {
         status: true
       }
     }
-    async getWaccExcptTargetCapStrc(adjCoe,excelSheetId,costOfDebt,copShareCapital,deRatio,type,taxRate,capitalStructure, retryCount: number = 1): Promise<any> {
-      let workbook = null;
+    async getWaccExcptTargetCapStrc(waccPayload): Promise<any> {
       let modifiedCapitalStructure;
-      try {
-        workbook = XLSX.readFile(`./uploads/${excelSheetId}`);
-      } catch (error) {
-        if (retryCount > 0) {
-          await this.thirdpartyApiService.fetchFinancialSheetFromS3(excelSheetId);
-          return this.getWaccExcptTargetCapStrc(adjCoe,excelSheetId,costOfDebt,copShareCapital,deRatio,type,taxRate,capitalStructure, retryCount - 1);
-        } 
-        else {
-          console.error('Max retry attempts reached. Unable to read Excel sheet.');
-          return {
-            result: null,
-            msg: `excelSheetId: ${excelSheetId} not available`,
-          };
-        }
-      }
-      const worksheet2 = workbook.Sheets['BS'];
-      if(type === 'Target_Based'){
-        modifiedCapitalStructure = capitalStructure;
+      if(waccPayload.type === 'Target_Based'){
+        modifiedCapitalStructure = waccPayload.capitalStructure;
       }else{
         modifiedCapitalStructure = {
-          deRatio:deRatio
+          deRatio:waccPayload.deRatio
         }
       }
       const payload = {
-        capitalStructureType:type,
+        capitalStructureType:waccPayload.type,
         capitalStructure:modifiedCapitalStructure
       }
-      const shareholderFunds = await getShareholderFunds(0,worksheet2);
-        
-      let capitalStruc = await CapitalStruc(0,worksheet2,shareholderFunds,payload);
 
-      let calculatedWacc = adjCoe/100 * capitalStruc.equityProp + (parseFloat(costOfDebt)/100)*(1-parseFloat(taxRate)/100)*capitalStruc.debtProp + parseFloat(copShareCapital)/100 * capitalStruc.prefProp;
+      const capitalStruc:any = await this.capitalStructureComputation(waccPayload.processStateId, payload);
+
+      let calculatedWacc = convertToNumberOrZero(waccPayload.adjCoe)/100 * capitalStruc.equityProp + (convertToNumberOrZero(waccPayload.costOfDebt)/100)*(1-convertToNumberOrZero(waccPayload.taxRate)/100)*capitalStruc.debtProp + convertToNumberOrZero(waccPayload.copShareCapital)/100 * capitalStruc.prefProp;
 
    return {
         result: {
           wacc: calculatedWacc*100,
-          adjCOE: adjCoe,
+          adjCOE:convertToNumberOrZero(waccPayload.adjCoe),
           capitalStructure:capitalStruc
         },
         message: 'Calculated WACC',
         status: true
       }
+    }
+
+    async capitalStructureComputation(processId, payload){
+      const excelData:any = await this.fcfeService.getSheetData(processId, EXCEL_CONVENTION.BS.key);
+      const provisionalDate = getDateKey(excelData.balanceSheetdata[0]);
+      const balanceSheetComputed = await this.serializeArrayObject(excelData.balanceSheetdata);
+      return await capitalStructureComputation(provisionalDate, balanceSheetComputed, payload);
+    }
+
+    async serializeArrayObject(array){
+      let excelArchive = {};
+      for await (const indArchive of array){
+        const {lineEntry, 'Sr no.': srNo, ...rest} = indArchive; 
+        excelArchive[indArchive.lineEntry.particulars] = rest;
+      }
+      return excelArchive;
     }
 
     async calculateWeightedVal(valuationInput) {

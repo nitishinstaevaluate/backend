@@ -13,6 +13,7 @@ export class ciqElasticPriceEquityService {
         try{
             const companyId = body.companyDetails.companyId;
             const date = body.companyDetails.date;
+            const exchangeId = body.companyDetails.exchangeId;
             const criteria = {
               query: {
                 bool: {
@@ -31,7 +32,7 @@ export class ciqElasticPriceEquityService {
                           },
                           {
                             term: {
-                              [elasticSearchKey.EXCHANGEID]: 161 //Default for NSEI 
+                              [elasticSearchKey.EXCHANGEID]: exchangeId || 161 //Default for NSEI 
                             }
                           }
                         ]

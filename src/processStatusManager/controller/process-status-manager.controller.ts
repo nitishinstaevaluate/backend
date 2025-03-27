@@ -7,11 +7,13 @@ import {
       Put,
       UseGuards,
       Request,
-      ParseIntPipe
+      ParseIntPipe,
+      Post,
+      Req
     } from '@nestjs/common';
-import { ProcessStatusManagerService } from './process-status-manager.service';
+import { ProcessStatusManagerService } from '../service/process-status-manager.service';
 import { AuthGuard } from '@nestjs/passport';
-import { ProcessStatusManagerDTO } from './dto/process-status-manager.dto';
+import { ProcessStatusManagerDTO } from '../dto/process-status-manager.dto';
 import { utilsService } from 'src/utils/utils.service';
 import { KeyCloakAuthGuard } from 'src/middleware/key-cloak-auth-guard';
 import { Roles } from 'src/middleware/decorator/roles.decorator';
@@ -97,5 +99,11 @@ export class ProcessStatusManagerController {
     @Get('fetch-process-identifier-id/:obId')
     async fetchProcessIdentifierId(@Param() obId: any){
       return await this.processStatusManagerService.getProcessIdentifierId(obId);
+    }
+
+    @UseGuards(KeyCloakAuthGuard)
+    @Post('clone-lead')
+    async cloneLead(@Body() payload: any, @Req() request:any){
+      return await this.processStatusManagerService.createClone(payload, request);
     }
 }

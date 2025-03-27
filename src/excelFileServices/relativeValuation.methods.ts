@@ -1,4 +1,4 @@
-import { sheet1_PLObj, sheet2_BSObj,columnsList } from './excelSheetConfig';
+import { sheet1_PLObj, sheet2_BSObj,columnsList, V2_PL_RAW_LINE_ITEMS, V2_BS_RAW_LINE_ITEMS } from './excelSheetConfig';
 import * as XLSX from 'xlsx';
 import { convertToNumberOrZero, getCellValue } from './common.methods';
 
@@ -206,57 +206,64 @@ export async function profitLossValues(column:number, worksheet1: any) {
   };
 }
 
-export async function ebitdaMethod(column:number, worksheet1: any) {
-  //formula: =+'P&L'!C25
-  const ebitda = await getCellValue(
-    worksheet1,
-    `${columnsList[column] + sheet1_PLObj.ebitdaRow}`,
-  );
-  return ebitda;
+// export async function ebitdaMethod(column:number, worksheet1: any) {
+//   //formula: =+'P&L'!C25
+//   const ebitda = await getCellValue(
+//     worksheet1,
+//     `${columnsList[column] + sheet1_PLObj.ebitdaRow}`,
+//   );
+//   return ebitda;
+// }
+export async function ebitdaMethod(profitlossData, provisionalDate) {
+  const ebitda = profitlossData[V2_PL_RAW_LINE_ITEMS.earningsBfrEBITDArow.particulars][provisionalDate];
+  return convertToNumberOrZero(ebitda);
 }
 
-export async function debtMethod(column:number, worksheet2: any) {
+export async function debtMethod(balanceSheetData, provisionalDate) {
   //formula: ==+BS!B26+BS!B27+BS!B36
-  const longTermBorrowings = await getCellValue(
-    worksheet2,
-    `${columnsList[column] + sheet2_BSObj.longTermBorrowingsRow}`,
-  );
-  const shortTermBorrowings = await getCellValue(
-    worksheet2,
-    `${columnsList[column] + sheet2_BSObj.shortTermBorrowingsRow}`,
-  );
-
-  const otherUnsecuredLoans = await getCellValue(
-    worksheet2,
-    `${columnsList[column] + sheet2_BSObj.otherUnsecuredLoansRow}`,
-  );
-  return longTermBorrowings + shortTermBorrowings + otherUnsecuredLoans;
+  const srtTrmBrrwngs = balanceSheetData[V2_BS_RAW_LINE_ITEMS.equityAndLiabilitiesRow.innerEquityAndLiabilities.liabilitiesRow.innerLiabilities.currentLiabilitiesRow.innerCurrentLiabilitiesRow.borrowingsRow.particulars][provisionalDate];
+  const lngTrmBrrwngs = balanceSheetData[V2_BS_RAW_LINE_ITEMS.equityAndLiabilitiesRow.innerEquityAndLiabilities.liabilitiesRow.innerLiabilities.nonCrrntLiabilitiesRow.innerNonCurrentLiabilitiesRow.longTermBorrowingsRow.particulars][provisionalDate];
+ 
+  return convertToNumberOrZero(srtTrmBrrwngs) + convertToNumberOrZero(lngTrmBrrwngs);
 }
 
-export async function  cashAndCashEquivalent(column:number, worksheet2){
-  const cashEquivalent =  await getCellValue(
-    worksheet2,
-    `${columnsList[column] + sheet2_BSObj.cashEquivalentsRow}`,
-  );
+// export async function  cashAndCashEquivalent(column:number, worksheet2){
+//   const cashEquivalent =  await getCellValue(
+//     worksheet2,
+//     `${columnsList[column] + sheet2_BSObj.cashEquivalentsRow}`,
+//   );
 
-  const bankBalance =  await getCellValue(
-    worksheet2,
-    `${columnsList[column] + sheet2_BSObj.bankBalancesRow}`,
-  );
+//   const bankBalance =  await getCellValue(
+//     worksheet2,
+//     `${columnsList[column] + sheet2_BSObj.bankBalancesRow}`,
+//   );
 
-  const shortTermInvestment =  await getCellValue(
-    worksheet2,
-    `${columnsList[column] + sheet2_BSObj.shortTermInvestmentsRow}`,
-  );
+//   const shortTermInvestment =  await getCellValue(
+//     worksheet2,
+//     `${columnsList[column] + sheet2_BSObj.shortTermInvestmentsRow}`,
+//   );
 
-  return convertToNumberOrZero(cashEquivalent) + convertToNumberOrZero(bankBalance) + convertToNumberOrZero(shortTermInvestment);
+//   return convertToNumberOrZero(cashEquivalent) + convertToNumberOrZero(bankBalance) + convertToNumberOrZero(shortTermInvestment);
+// }
+export async function  cashAndCashEquivalent(balanceSheetData, provisionalDate){
+  const cashNCashEquivalent = balanceSheetData[V2_BS_RAW_LINE_ITEMS.assetsRow.innerAsset.currentAssetsRow.innerCurrentAssetRow.cashNcashEqvlentRow.particulars][provisionalDate];
+  const bankBalance = balanceSheetData[V2_BS_RAW_LINE_ITEMS.assetsRow.innerAsset.currentAssetsRow.innerCurrentAssetRow.bankBlnceOthr3AboveRow.particulars][provisionalDate];
+  const crrntInvstmnt = balanceSheetData[V2_BS_RAW_LINE_ITEMS.assetsRow.innerAsset.currentAssetsRow.innerCurrentAssetRow.crrntInvstmentRow.particulars][provisionalDate];
+ 
+  return convertToNumberOrZero(cashNCashEquivalent) + convertToNumberOrZero(bankBalance) + convertToNumberOrZero(crrntInvstmnt);
 }
 
-export async function incomeFromOperation(column:number, worksheet1: any) {
-  //formula: =+'P&L'!C7
-  const incomeFromOperation = await getCellValue(
-    worksheet1,
-    `${columnsList[column] + sheet1_PLObj.incomeFromOperationRow}`,
-  );
-  return incomeFromOperation;
+// export async function incomeFromOperation(column:number, worksheet1: any) {
+//   //formula: =+'P&L'!C7
+//   const incomeFromOperation = await getCellValue(
+//     worksheet1,
+//     `${columnsList[column] + sheet1_PLObj.incomeFromOperationRow}`,
+//   );
+//   return incomeFromOperation;
+// }
+
+export async function incomeFromOperation(profitLossSheetData, provisionalDate) {
+  const rvnueFrmOprtnsSle = profitLossSheetData[V2_PL_RAW_LINE_ITEMS.income.innerIncomeRow.revnueFrmOprtionsSalesRow.particulars][provisionalDate];
+  const othrOprtngIncme =  profitLossSheetData[V2_PL_RAW_LINE_ITEMS.income.innerIncomeRow.othrOprtingIncmeRow.particulars][provisionalDate];
+  return convertToNumberOrZero(rvnueFrmOprtnsSle) + convertToNumberOrZero(othrOprtngIncme);
 }

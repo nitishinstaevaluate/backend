@@ -178,7 +178,9 @@ export class ciqSpBetaService {
   
           for (let i = 0; i < maxLength; i++){
             adjustedBetaArray.push(
-              0.371 + 0.635 * result[MNEMONIC_ENUMS.IQ_BETA][i] //Using only unadjusted beta ( last 5 yrs data )
+              result[MNEMONIC_ENUMS.IQ_BETA][i] ? 
+              (0.371 + 0.635 * result[MNEMONIC_ENUMS.IQ_BETA][i]) //Using only unadjusted beta ( last 5 yrs data ) 
+              : 0
             )
           }
           return adjustedBetaArray;
@@ -450,4 +452,21 @@ export class ciqSpBetaService {
         }
       }
       //#endregion Beta working ends
+
+      async cloneBetaWorkingAggregate(payload){
+        try{
+          const oldPID = payload.oldPID;
+          const newPID = payload.newPID;
+
+          const oldProcess:any = await this.getBetaWorkingAggregate(oldPID);
+          if(!oldProcess?.data) return;
+
+          const { _id, createdAt, updatedAt, processIdentifierId, ...rest } = oldProcess.data.toObject();
+      
+          return await new this.betaWorkingModel({ ...rest, processIdentifierId: newPID }).save()
+        }
+        catch(error){
+          throw error;
+        }
+      }
 }

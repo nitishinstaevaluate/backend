@@ -8,7 +8,7 @@
     <style type="text/css">
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            /* background-color: #f0f0f0; */
             margin-top: 6%;
             padding: 0;
         }
@@ -17,7 +17,7 @@
             margin: 0 auto;
             max-width: 800px;
             padding: 20px;
-            background-color: #ffffff;
+            background-color: transparent;
             /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
         }
 
@@ -30,7 +30,7 @@
         .column {
             width: 45%; /* Adjust the width as needed */
             padding: 10px;
-            background-color: #f9f9f9;
+            /* background-color: #f9f9f9; */
             border: 1px solid #ddd;
             border-radius: 5px;
             margin-bottom: 10px;
@@ -72,7 +72,7 @@
         }
 
         th {
-            background-color: #333;
+            background-color: #001F5F;
             color: #fff;
         }
 
@@ -114,28 +114,11 @@
             </div>
             <!-- <p><strong>Valuation of a firm based on Profit loss and balance sheet statements.</strong></p> -->
 
-    <table>
-        <thead>
-          <tr>
-            <th>Particulars</th>
-            <th>Book Value</th>
-            <th>Market Value</th>
-          </tr>
-        </thead>
-        {{#each (netAssetValue data)}}
-          <tbody>
-            <tr style="height: 23px;">
-                {{#if (checkHead fieldName "")}}
-                <td style="font-weight: 700;">{{fieldName}}</td>
-                {{else}}
-                <td>{{fieldName}}</td>
-                {{/if}}
-                <td>{{bookValue}}</td>
-                <td>{{fairValue}}</td>
-            </tr>
-        </tbody>
-        {{/each}}
-      </table>
+            <div style="padding-right: 2.5%;">
+                <!-- NAV Table Starts -->
+                {{{iterateNAVData}}}    
+                <!-- NAV Table ends -->
+            </div>
     </div>
 </body>
 

@@ -7,18 +7,20 @@ import hbs = require('handlebars');
 import * as converter from 'number-to-words'
 import { MODEL, NATURE_OF_INSTRUMENT, PURPOSE_OF_REPORT_AND_SECTION, REPORT_PURPOSE } from "src/constants/constants";
 import { computedTotalYears, formatDate, formatPositiveAndNegativeValues, transformData } from "./report-common-functions";
-import { ProcessStatusManagerService } from "src/processStatusManager/process-status-manager.service";
+import { ProcessStatusManagerService } from "src/processStatusManager/service/process-status-manager.service";
 import * as xlsx from 'xlsx';
 import { thirdpartyApiAggregateService } from "src/library/thirdparty-api/thirdparty-api-aggregate.service";
 import { convertToNumberOrZero, getRequestAuth } from "src/excelFileServices/common.methods";
 import { KeyCloakAuthGuard } from "src/middleware/key-cloak-auth-guard";
 import { userRoles } from "src/library/enums/user-roles.enum";
+import { ExcelArchiveService } from "src/excel-archive/service/excel-archive.service";
 
 @Injectable()
 export class mrlReportService {
     constructor(private utilService: utilsService,
       private processStateManagerService: ProcessStatusManagerService,
-      private thirdPartyApiAggregateService: thirdpartyApiAggregateService){}
+      private thirdPartyApiAggregateService: thirdpartyApiAggregateService,
+      private excelArchiveService: ExcelArchiveService){}
     async generateMrlReport(id, res, format, headers){
         try{
             const applicationData:any = await this.processStateManagerService.fetchProcess(id);
@@ -32,7 +34,7 @@ export class mrlReportService {
             const { roles } = await this.fetchUserInfo(headers);
 
             const stageOneData = applicationData.stateInfo.firstStageInput;
-            const computeExcelSheet = await this.excelSheetComputation(stageOneData);
+            const computeExcelSheet = await this.excelSheetComputation(stageOneData, id);
             const excelSheetId = this.getExcelSheetId(stageOneData);
             const workbook = await this.readFile(excelSheetId); 
             const computedTotalYear = await computedTotalYears(workbook);
@@ -254,6 +256,9 @@ export class mrlReportService {
           }
           return '';
         })
+        hbs.registerHelper("formatNumber", function(value) {
+          return !isNaN(value) && value !== null ? Number(value).toFixed(2) : value;
+      });
         }
         catch(error){
           console.log(error,"error")
@@ -351,36 +356,58 @@ export class mrlReportService {
         });
       }
 
-      async excelSheetComputation(data){
+      async excelSheetComputation(data, processId){
         try{
-          const excelSheetId = this.getExcelSheetId(data);
-          const workbook = await this.readFile(excelSheetId); 
+          // const excelSheetId = this.getExcelSheetId(data);
+          // const workbook = await this.readFile(excelSheetId); 
+
+          const excelArchive:any = await this.excelArchiveService.fetchExcelByProcessStateId(processId)
+          console.log(data, "process state id");
+
+          const balanceSheetRowCount = excelArchive?.balanceSheetRowCount || 0;
+          const profitLossSheetRowCount = excelArchive?.profitLossSheetRowCount || 0;
 
           let excelSheetDataObject = {};
-          let excelSheet = ['P&L','BS']
-          for(let i =0; i<excelSheet.length;i++){   //Running this loop twice cause we need only P&L and BS in mandate pdf (if more than two sheets data is required increment the counter)
-            const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[excelSheet[i]]);
-            sheetData.forEach((row:any) => {
-                for (let columns in row) {
-                  if (typeof row[columns] === 'string') {
-                    row[columns] = row[columns].replace(/\r\n/g, '');
-                  }
+          if(balanceSheetRowCount && profitLossSheetRowCount){
+            const balanceSheetData = excelArchive?.balanceSheetdata;
+            const profitLossSheetData = excelArchive?.profitLossSheetdata;
 
-                  if (typeof row[columns] === 'number') {
-                    row[columns] = parseFloat(row[columns].toFixed(2));
-                  }
+            for await (const indBSdata of balanceSheetData){
+              indBSdata.Particulars = indBSdata.lineEntry.particulars;
+              delete indBSdata.lineEntry;
+            }
 
-                  if (typeof columns === 'string') {
-                    const cleanedColumn = columns.trim().replace(/^\s+/g, '').replace(/\r\n/g, '');
-                    if (columns !== cleanedColumn) {
-                      row[cleanedColumn] = row[columns];
-                      delete row[columns];
-                    }
-                  }
-                }
-            });
-            excelSheetDataObject[excelSheet[i]] = await transformData(sheetData);
+            for await (const indPldata of profitLossSheetData){
+              indPldata.Particulars = indPldata.lineEntry.particulars;
+              delete indPldata.lineEntry;
+              delete indPldata['Sr no.'];
+            }
+            excelSheetDataObject['P&L'] = await transformData(profitLossSheetData);
+            excelSheetDataObject['BS'] = await transformData(balanceSheetData);
           }
+          // let excelSheet = ['P&L','BS']
+          // for(let i =0; i<excelSheet.length;i++){   //Running this loop twice cause we need only P&L and BS in mandate pdf (if more than two sheets data is required increment the counter)
+          //   const sheetData = xlsx.utils.sheet_to_json(workbook.Sheets[excelSheet[i]]);
+          //   sheetData.forEach((row:any) => {
+          //       for (let columns in row) {
+          //         if (typeof row[columns] === 'string') {
+          //           row[columns] = row[columns].replace(/\r\n/g, '');
+          //         }
+
+          //         if (typeof row[columns] === 'number') {
+          //           row[columns] = parseFloat(row[columns].toFixed(2));
+          //         }
+
+          //         if (typeof columns === 'string') {
+          //           const cleanedColumn = columns.trim().replace(/^\s+/g, '').replace(/\r\n/g, '');
+          //           if (columns !== cleanedColumn) {
+          //             row[cleanedColumn] = row[columns];
+          //             delete row[columns];
+          //           }
+          //         }
+          //       }
+          //   });
+          // }
           return excelSheetDataObject;
         }
         catch(error){

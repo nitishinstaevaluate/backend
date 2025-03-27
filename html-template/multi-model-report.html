@@ -1838,8 +1838,8 @@
                                                     Cost of Equity (Ke)</h1>
                                                 <!-- <p style="text-indent: 0pt;text-align: left;"><br /></p> -->
                                                 <p style="padding-left: 28pt;text-indent: 0pt;text-align: left;line-height: 140%;padding-top: 1.5%;">We have applied
-                                                    Capital Asset Pricing Model (CAP-M) to estimate the CoE. Formula for calculation
-                                                    of CoE utilizing CAP-M model is presented below.</p>
+                                                    {{#costOfEquityMethodStrings 'coeBase1'}}{{/costOfEquityMethodStrings}} to estimate the CoE. Formula for calculation
+                                                    of CoE utilizing {{#costOfEquityMethodStrings 'coeBase2'}}{{/costOfEquityMethodStrings}} is presented below.</p>
                                                 <p style="text-indent: 0pt;text-align: left;"><br /></p>
                                                 <table style="border-collapse:collapse;margin-left:30pt" cellspacing="0">
                                                     <tr style="height:14pt">
@@ -1852,7 +1852,7 @@
                                                         <td style="width:561pt">
                                                             <p class="s8"
                                                                 style="padding-left: 90pt;text-indent: 0pt;line-height: 13pt;text-align: left;font-weight: bold;">
-                                                                Cost of Equity = Rf + β (Rmp) + α</p>
+                                                                Cost of Equity = {{#costOfEquityMethodStrings 'coeBase3'}}{{/costOfEquityMethodStrings}}</p>
                                                         </td>
                                                     </tr>
                                                     <tr style="height:17pt">
@@ -1886,6 +1886,7 @@
                                                                 yield of relevant countries.</p>
                                                         </td>
                                                     </tr>
+                                                    {{#if (isCapm)}}
                                                     <tr style="height:19pt">
                                                         <td style="width:63pt">
                                                             <p class="s8"
@@ -1904,6 +1905,7 @@
                                                                 to the overall stock market.</p>
                                                         </td>
                                                     </tr>
+                                                    {{/if}}
                                                     <tr style="height:33pt">
                                                         <td style="width:63pt">
                                                             <p class="s8"
@@ -1924,6 +1926,44 @@
                                                                 equity risk premium estimates.</p>
                                                         </td>
                                                     </tr>
+                                                    {{#if (isCapm)}}
+                                                <!-- do nothing -->
+                                                {{else}}
+                                                <tr style="height:30pt">
+                                                    <td style="width:63pt">
+                                                        <p class="s8"
+                                                            style="padding-top: 2pt;padding-right: 6pt;text-indent: 0pt;text-align: right;font-size: 14px !important;">
+                                                            γirp</p>
+                                                    </td>
+                                                    <td style="width:21pt">
+                                                        <p class="s8"
+                                                            style="padding-top: 2pt;padding-left: 6pt;text-indent: 0pt;text-align: left;font-size: 14px !important;">
+                                                            =</p>
+                                                    </td>
+                                                    <td style="width:570pt">
+                                                        <p class="s8"
+                                                            style="padding-top: 2pt;padding-left: 6pt;text-indent: 0pt;text-align: left;font-size: 14px !important;">
+                                                            An additional return required to compensate for risks specific to a particular industry, such as regulatory challenges, market volatility, or competition.</p>
+                                                    </td>
+                                                </tr>
+                                                <tr style="height:30pt">
+                                                    <td style="width:63pt">
+                                                        <p class="s8"
+                                                            style="padding-top: 2pt;padding-right: 6pt;text-indent: 0pt;text-align: right;font-size: 14px !important;">
+                                                            δsp</p>
+                                                    </td>
+                                                    <td style="width:21pt">
+                                                        <p class="s8"
+                                                            style="padding-top: 2pt;padding-left: 6pt;text-indent: 0pt;text-align: left;font-size: 14px !important;">
+                                                            =</p>
+                                                    </td>
+                                                    <td style="width:575pt">
+                                                        <p class="s8"
+                                                            style="padding-top: 2pt;padding-left: 6pt;text-indent: 0pt;text-align: left;font-size: 14px !important;">
+                                                            An extra return required by investors to account for the higher risks associated with investing in smaller companies, such as limited resources or market reach.</p>
+                                                    </td>
+                                                </tr>
+                                                {{/if}}
                                                     <tr style="height:30pt">
                                                         <td style="width:63pt">
                                                             <p class="s8"
@@ -2001,6 +2041,7 @@
                                                         <p style="text-align: right;padding-right: 5pt;font-size: 13px !important;padding-top: 2px;padding-bottom: 2px">{{expMarketReturn}}%</p>
                                                     </td>
                                                 </tr>
+                                                {{#if (isCapm)}}
                                                 <tr style="height:16pt">
                                                     <td
                                                         style="width:248pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
@@ -2013,6 +2054,32 @@
                                                         <p style="text-align: right;padding-right: 5pt;font-size: 13px !important;padding-top: 2px;padding-bottom: 2px">{{beta}}</p>
                                                     </td>
                                                 </tr>
+                                                {{else}}
+                                                <tr style="height:16pt">
+                                                    <td
+                                                        style="width:248pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                                        <p class="s5"
+                                                            style="padding-top: 1pt;padding-left: 5pt;text-indent: 0pt;line-height: 13pt;text-align: left;font-size: 13px !important;padding-top: 2px;padding-bottom: 2px">
+                                                            Industry Risk Premium (3)</p>
+                                                    </td>
+                                                    <td
+                                                        style="width:99pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                                        <p style="text-align: right;padding-right: 5pt;font-size: 13px !important;padding-top: 2px;padding-bottom: 2px">{{industryRiskPremium}}%</p>
+                                                    </td>
+                                                </tr>
+                                                <tr style="height:16pt">
+                                                    <td
+                                                        style="width:248pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                                        <p class="s5"
+                                                            style="padding-top: 1pt;padding-left: 5pt;text-indent: 0pt;line-height: 13pt;text-align: left;font-size: 13px !important;padding-top: 2px;padding-bottom: 2px">
+                                                            Size Premium (4)</p>
+                                                    </td>
+                                                    <td
+                                                        style="width:99pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                                        <p style="text-align: right;padding-right: 5pt;font-size: 13px !important;padding-top: 2px;padding-bottom: 2px">{{sizePremium}}%</p>
+                                                    </td>
+                                                </tr>
+                                                {{/if}}
                                                 <tr style="height:16pt">
                                                     <td
                                                         style="width:248pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
@@ -2030,7 +2097,7 @@
                                                         style="width:248pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                                                         <p class="s5"
                                                             style="padding-top: 1pt;padding-left: 5pt;text-indent: 0pt;line-height: 13pt;text-align: left;font-size: 13px !important;padding-top: 2px;padding-bottom: 2px">
-                                                            Company Specific Risk Premium (4)</p>
+                                                            Company Specific Risk Premium {{#if (isCapm)}}(4){{else}}(5){{/if}}</p>
                                                     </td>
                                                     <td
                                                         style="width:99pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
@@ -2123,6 +2190,7 @@
                                                     </table>
                                                     <p style="text-indent: 0pt;text-align: left;"><br /></p>
                                                 </li>
+                                                {{#if (isCapm)}}
                                                 <li data-list-text="3." style="">
                                                     {{#if (hasBetaWorking)}}
                                                     <p style="padding-left: 27pt;text-indent: -18pt;line-height: 140%;text-align: left;padding-bottom: 2%;">
@@ -2248,7 +2316,7 @@
                                                             </table>
                                                             <span style="font-size: 13px !important;font-weight: bold;float: left;padding-left: 10pt;font-family: 'Times New Roman', Times, serif !important;">Source- Capital IQ</span>
                                                     {{else}}
-                                                    <p style="padding-left: 150pt;text-indent: -18pt;line-height: 140%;text-align: left;">
+                                                    <p style="padding-left: 52pt;text-indent: -18pt;line-height: 140%;text-align: left;">
                                                         {{#if (isBetaFromAd)}}
                                                              The beta is considered as <span>{{beta}}.</span><br>
                                                              <!-- of {{betaAdIndustryName}} from Prof. Aswath Damodaran dababase. -->
@@ -2264,44 +2332,56 @@
                                                     </p>
                                                     {{/if}}
                                                 </li>
-                                                {{#if (hasBetaWorking)}}
-                                                    <li data-list-text="4." style="page-break-before: always;padding-top: 10%;">
-                                                        <p style="padding-top: 7%;padding-left: 30pt;text-indent: -18pt;line-height: 140%;text-align: left;">
-                                                            The alpha/company specific risk premium is adjusted on account of micro
-                                                            factors associated with the company. 
-                                                        </p>
-                                                        {{#if (alphaExist)}}
-                                                        <p style="text-align: left;padding-left: 48pt;text-indent: -18pt;padding-top: 1%;">
-                                                            The factors such as:-
-                                                        </p>    
-                                                        <p class="alpha-restyle">
-                                                            {{{alpha}}}
-                                                        </p>
-                                                        {{/if}}
-                                                    </li>
-                                                {{else}}
-                                                    <li data-list-text="4.">
-                                                        <p style="padding-top: 2%;padding-left: 150pt;text-indent: -18pt;line-height: 140%;text-align: left;">
-                                                            The alpha/company specific risk premium is adjusted on account of micro
-                                                            factors associated with the company. 
-                                                        </p>
-                                                        {{#if (alphaExist)}}
-                                                        <p style="text-align: left;padding-left: 167pt;text-indent: -18pt;padding-top: 1%;">
-                                                            The factors such as:-
-                                                        </p>    
-                                                        <p class="alpha-restyle">
-                                                            {{{alpha}}}
-                                                        </p>
-                                                        {{/if}}
-                                                    </li>
+                                                {{/if}}
+                                                {{#if (operatorAND (hasBetaWorking) (isCapm))}} <p style="page-break-before: always;padding-top: 5%;"></p>{{/if}}
+                                                {{#if (isCapm)}}
+                                                <li data-list-text="4.">
+                                                    <p style="padding-top: 2%;padding-left: 50pt;text-indent: -15pt;line-height: 140%;text-align: left;">
+                                                        The alpha/company specific risk premium is adjusted on account of micro
+                                                        factors associated with the company. 
+                                                    </p>
+                                                    {{#if (alphaExist)}}
+                                                    <p style="text-align: left;padding-left: 67pt;text-indent: -15pt;padding-top: 1%;">
+                                                        The factors such as:-
+                                                    </p>    
+                                                    <p class="alpha-restyle">
+                                                        {{{alpha}}}
+                                                    </p>
                                                     {{/if}}
+                                                </li>
+                                                {{else}}
+                                                    <li data-list-text="3.">
+                                                        <p style="padding-top: 2%;padding-left: 100pt;text-indent: -15pt;line-height: 140%;text-align: left;padding-bottom: 2%;">
+                                                            The industry risk premium is adjusted to reflect the specific risks inherent to the industry in which the company operates, such as regulatory challenges, competitive pressures, or market trends, with value computed as {{industryRiskPremium}}%.
+                                                        </p>
+                                                        
+                                                    </li>
+                                                    <li data-list-text="4.">
+                                                        <p style="padding-top: 2%;padding-left: 100pt;text-indent: -15pt;line-height: 140%;text-align: left;padding-bottom: 2%;">
+                                                            The Size Premium is adjusted for risks related to the company's size, such as limited resources or higher volatility,with value computed as {{sizePremium}}%.
+                                                        </p>
+                                                    </li>
+                                                    <li data-list-text="5.">
+                                                        <p style="padding-top: 2%;padding-left: 100pt;text-indent: -15pt;line-height: 140%;text-align: left;">
+                                                            The alpha/company specific risk premium is adjusted on account of micro
+                                                            factors associated with the company. 
+                                                        </p>
+                                                        {{#if (alphaExist)}}
+                                                        <p style="text-align: left;padding-left: 118pt;text-indent: -15pt;padding-top: 1%;">
+                                                            The factors such as:-
+                                                        </p>    
+                                                        <p class="alpha-restyle">
+                                                            {{{alpha}}}
+                                                        </p>
+                                                        {{/if}}
+                                                    </li>
+                                                {{/if}}
                                             </ol>
                                          </li>
                                      </ol>
                                  </li>
                              </ol>
                              {{#if (checkIfFcff)}}
-                             {{#if (hasBetaWorking)}}
                              <div>
                                 <p style="text-align: center;padding-top: 3%;">
                                     <span class="s1" style="font-weight:bold;">Cost of Debt</span></p>
@@ -2317,21 +2397,6 @@
                                     We have used {{capitalStructureType}} Capital Structure of {{capitalStructureRatio}} for the purpose of computation of WACC.</p>
                                         <p style="text-indent: 0pt;text-align: left;"><br /></p>
                             </div>
-                            {{else}}
-                             <p style="text-align: center;padding-top: 3%;">
-                                <span class="s1" style="font-weight:bold;">Cost of Debt</span></p>
-                            <p style="padding-left: 80pt;text-indent: 0pt;line-height: 140%;text-align: justify;padding-top: 1%;">
-                                The cost of Debt as confirmed by management of the company is {{costOfDebt}}%. Tax rate applicable is {{taxRate}}.</p>
-                            <p style="padding-left: 80pt;text-indent: 0pt;text-align: justify;line-height: 140%;"> Accordingly,
-                                    post tax cost of debt is arrived at {{postCostOfDebt}}%.</p>
-                            <p style="text-indent: 0pt;text-align: left;"><br /></p>
-                            <p
-                                style="padding-top: 5px;text-align: center;padding-top: 2%;">
-                                <span class="s1" style="">Capital Structure</span></p>
-                            <p style="padding-left: 80pt;text-indent: 0pt;line-height: 140%;text-align: justify;padding-top: 2%;">
-                                We have used {{capitalStructureType}} Capital Structure of {{capitalStructureRatio}} for the purpose of computation of WACC.</p>
-                                    <p style="text-indent: 0pt;text-align: left;"><br /></p>
-                             {{/if}}
                              {{/if}}
                              <h1 style="padding-left: 28pt;text-indent: 0pt;line-height: 14pt;text-align: left;padding-top: 5pt;">Terminal Value:
                             </h1>
@@ -3008,12 +3073,12 @@
                                    {{#ifZero fcffSumOfCashFlows}}
                                    {{#if (isLineItemCheck fcffSumOfCashFlows)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffSumOfCashFlows}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffSumOfCashFlows}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffSumOfCashFlows}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffSumOfCashFlows}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3025,12 +3090,12 @@
                                 {{#ifZero fcffPvTerminalVal}}
                                 {{#if (isLineItemCheck fcffPvTerminalVal)}}
                                 <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                    <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffPvTerminalVal}}
+                                    <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffPvTerminalVal}}
                                     </p>
                                 </td>
                                 {{else}}
                                 <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                    <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffPvTerminalVal}}
+                                    <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffPvTerminalVal}}
                                     </p>
                                 </td>
                                 {{/if}}
@@ -3043,12 +3108,12 @@
                                    {{#ifZero fcffDebtOnDate}}
                                    {{#if (isLineItemCheck fcffDebtOnDate)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffDebtOnDate}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffDebtOnDate}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffDebtOnDate}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffDebtOnDate}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3061,12 +3126,12 @@
                                    {{#ifZero fcffCashEquivalents}}
                                    {{#if (isLineItemCheck fcffCashEquivalents)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffCashEquivalents}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffCashEquivalents}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffCashEquivalents}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffCashEquivalents}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3079,12 +3144,12 @@
                                    {{#ifZero fcffSurplusAssets}}
                                    {{#if (isLineItemCheck fcffSurplusAssets)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffSurplusAssets}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffSurplusAssets}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffSurplusAssets}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffSurplusAssets}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3098,12 +3163,12 @@
                                    {{#ifZero fcffOtherAdj}}
                                    {{#if (isLineItemCheck fcffOtherAdj)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffOtherAdj}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffOtherAdj}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffOtherAdj}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffOtherAdj}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3116,12 +3181,12 @@
                                    {{#ifZero fcffEquityValue}}
                                    {{#if (isLineItemCheck fcffEquityValue)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-size: 12px !important;">  {{fcffEquityValue}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-size: 12px !important;">  {{fcffEquityValue}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-size: 12px !important;">  {{fcffEquityValue}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-size: 12px !important;">  {{fcffEquityValue}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3135,12 +3200,12 @@
                                    {{#ifZero fcffStubAdjValue}}
                                    {{#if (isLineItemCheck fcffStubAdjValue)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffStubAdjValue}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffStubAdjValue}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffStubAdjValue}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffStubAdjValue}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3155,12 +3220,12 @@
                                    {{#ifZero fcffequityValueNew}}
                                    {{#if (isLineItemCheck fcffequityValueNew)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-size: 12px !important;">  {{fcffequityValueNew}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-size: 12px !important;">  {{fcffequityValueNew}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-size: 12px !important;">  {{fcffequityValueNew}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-size: 12px !important;">  {{fcffequityValueNew}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3173,12 +3238,12 @@
                                    {{#ifZero fcffNoOfShares}}
                                    {{#if (isLineItemCheck fcffNoOfShares)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffNoOfShares}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffNoOfShares}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcffNoOfShares}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcffNoOfShares}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3190,12 +3255,12 @@
                                    {{#ifZero fcffValuePerShare}}
                                    {{#if (isLineItemCheck fcffValuePerShare)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-size: 12px !important;">  {{fcffValuePerShare}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-size: 12px !important;">  {{fcffValuePerShare}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-size: 12px !important;">  {{fcffValuePerShare}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-size: 12px !important;">  {{fcffValuePerShare}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3226,12 +3291,12 @@
                                    {{#ifZero fcfeSumOfCashFlows}}
                                    {{#if (isLineItemCheck fcfeSumOfCashFlows)}}
                                     <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfeSumOfCashFlows}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfeSumOfCashFlows}}
                                        </p>
                                    </td>
                                    {{else}}
                                     <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfeSumOfCashFlows}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfeSumOfCashFlows}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3243,12 +3308,12 @@
                                 {{#ifZero fcfePvTerminalVal}}
                                 {{#if (isLineItemCheck fcfePvTerminalVal)}}
                                 <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                    <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfePvTerminalVal}}
+                                    <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfePvTerminalVal}}
                                     </p>
                                 </td>
                                 {{else}}
                                 <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                    <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfePvTerminalVal}}
+                                    <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfePvTerminalVal}}
                                     </p>
                                 </td>
                                 {{/if}}
@@ -3260,12 +3325,12 @@
                                    {{#ifZero fcfeCashEquivalents}}
                                    {{#if (isLineItemCheck fcfeCashEquivalents)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfeCashEquivalents}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfeCashEquivalents}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfeCashEquivalents}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfeCashEquivalents}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3278,12 +3343,12 @@
                                    {{#ifZero fcfeSurplusAssets}}
                                    {{#if (isLineItemCheck fcfeSurplusAssets)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfeSurplusAssets}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfeSurplusAssets}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfeSurplusAssets}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfeSurplusAssets}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3297,12 +3362,12 @@
                                    {{#ifZero fcfeOtherAdj}}
                                    {{#if (isLineItemCheck fcfeOtherAdj)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfeOtherAdj}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfeOtherAdj}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfeOtherAdj}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfeOtherAdj}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3315,12 +3380,12 @@
                                    {{#ifZero fcfeEquityValue}}
                                    {{#if (isLineItemCheck fcfeEquityValue)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-size: 12px !important;">  {{fcfeEquityValue}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-size: 12px !important;">  {{fcfeEquityValue}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-size: 12px !important;">  {{fcfeEquityValue}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-size: 12px !important;">  {{fcfeEquityValue}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3334,12 +3399,12 @@
                                    {{#ifZero fcfeStubAdjValue}}
                                    {{#if (isLineItemCheck fcfeStubAdjValue)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfeStubAdjValue}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfeStubAdjValue}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfeStubAdjValue}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfeStubAdjValue}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3354,12 +3419,12 @@
                                    {{#ifZero fcfeequityValueNew}}
                                    {{#if (isLineItemCheck fcfeequityValueNew)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-size: 12px !important;">  {{fcfeequityValueNew}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-size: 12px !important;">  {{fcfeequityValueNew}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-size: 12px !important;">  {{fcfeequityValueNew}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-size: 12px !important;">  {{fcfeequityValueNew}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3372,12 +3437,12 @@
                                    {{#ifZero fcfeNoOfShares}}
                                    {{#if (isLineItemCheck fcfeNoOfShares)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfeNoOfShares}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfeNoOfShares}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-weight: 400;font-size: 12px !important;">  {{fcfeNoOfShares}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-weight: 400;font-size: 12px !important;">  {{fcfeNoOfShares}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3389,12 +3454,12 @@
                                    {{#ifZero fcfeValuePerShare}}
                                    {{#if (isLineItemCheck fcfeValuePerShare)}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 1%;padding-bottom: 1%;font-size: 12px !important;">  {{fcfeValuePerShare}}
+                                       <p class="s15" style="padding-right: 5pt;text-indent: 0pt;line-height: 12pt;text-align: right;padding-top: 0.6%;padding-bottom: 0.6%;font-size: 12px !important;">  {{fcfeValuePerShare}}
                                        </p>
                                    </td>
                                    {{else}}
                                    <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-size: 12px !important;">  {{fcfeValuePerShare}}
+                                       <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;padding-top: 0.6%;padding-bottom: 0.6%;font-size: 12px !important;">  {{fcfeValuePerShare}}
                                        </p>
                                    </td>
                                    {{/if}}
@@ -3424,7 +3489,7 @@
         <h1 style="padding-left: 25pt;text-indent: -18pt;text-align: left;padding-bottom: 2%;">Comparable Companies Method</h1>
         <li data-list-text="3.">
         <p style="padding-left: 5pt;text-indent: 0pt;text-align: justify;line-height: 160%;">
-            In order to value <span style="text-transform: capitalize;font-weight: bold;">{{companyName}}</span>, we identified <span>{{numberOfSubindustry}}</span> comparable publicly traded (listed) companies, 
+            In order to value <span style="text-transform: capitalize;font-weight: bold;">{{companyName}}</span>, we identified <span>{{totalNumberOfCompaniesSelected 'number'}}</span> comparable publicly traded (listed) companies, 
             which are engaged in the <span style="text-transform: capitalize;font-weight: bold;">{{industryName}}</span> (“Guideline Public Companies”). Based on the nature of 
             the business of <span style="text-transform: capitalize;">{{companyName}}</span> we selected 
             <!-- Price/Sales (P/S), Price/Book Value (P/BV), 
@@ -3435,7 +3500,7 @@
         </p>
         <p style="text-indent: 0pt;text-align: left;"><br /></p>
         <ul>
-            <li>
+            <!-- <li>
                 <p
                     style="padding-left: 20pt;line-height: 190%;text-align: left;">
                 1. Enterprise Value</p>
@@ -3459,7 +3524,7 @@
                 <p
                     style="padding-left: 20pt;line-height: 190%;text-align: left;">
                 5. Earnings per Share (EPS)</p>
-            </li>
+            </li> -->
             <!-- <li>
                 <p
                     style="padding-left: 20pt;line-height: 190%;text-align: left;">
@@ -3635,7 +3700,13 @@
                             {{/each}}
                             <tr style="padding-top: 1%;padding-bottom: 1%;">
                                 <td colspan="7" style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;border-left-style: solid;border-left-width: 1pt;padding-top: 1%;padding-bottom: 1%;">
-                                    <p style="text-indent: 0pt;text-align: center;color: black;font-size: 11px !important;font-weight: bold;">MEAN</p>
+                                    <p style="text-indent: 0pt;text-align: center;color: black;font-size: 11px !important;font-weight: bold;">
+                                        {{#if (ccmVPSMetricCheck 'average')}}
+                                            MEAN
+                                        {{else}}
+                                            MEDIAN
+                                        {{/if}}
+                                    </p>
                                 </td>
                                 
                                 <!-- <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;padding-top: 1%;padding-bottom: 1%;">
@@ -3758,32 +3829,34 @@
                             Consequently, we arrived at the equity value of the Company as of
                         </span><span >{{strdate}}</span><span
                             class="p">. The resultant value
-                            indicates the fair value of </span><span class="s4"
-                            style="text-transform: capitalize;">Company's</span><span class="p"> operations as
+                            indicates the fair value of </span><span class="p">Company's operations as
                             of </span><span>{{strdate}}</span><span class="p">.</span>
                     </p>
                     <p style="text-indent: 0pt;text-align: left;"><br /></p>
-                    <table style="border-collapse:collapse;margin-left:auto;margin-right: auto;width:70%;margin-top: 1%;" cellspacing="0">
+                    <table style="border-collapse:collapse;margin-left:auto;margin-right: auto;width:70%;padding-top: 2%;" cellspacing="0">
                         <tr>
-                            <td style="background-color: #000000 !important;">
+                            <td style="background-color: #001F5F !important;">
                                 <p class="s15"
                                     style="padding-left: 5pt;;text-align: left;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                                     Particulars
                                 </p>
                             </td>
                             {{#if (checkPreferenceRatio)}}
-                                <td style="background-color: #000000 !important;">
+                            {{#if (ccmVPSMetricCheck 'average')}}
+                                <td style="background-color: #001F5F !important;">
                                     <p class="s15"
                                         style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                                         Average</p>
                                 </td>
-                                <td style="background-color: #000000 !important;">
+                                {{else}}
+                                <td style="background-color: #001F5F !important;">
                                     <p class="s15"
                                         style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                                         Median</p>
                                 </td>
+                                {{/if}}
                             {{else}}
-                                <td style="background-color: #000000 !important;">
+                                <td style="background-color: #001F5F !important;">
                                     <p class="s15"
                                         style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                                         Amount</p>
@@ -3801,19 +3874,21 @@
                                                 {{particular}}</p>
                                         </td>
 
+                                        {{#if (ccmVPSMetricCheck 'average')}}
                                         <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                                             <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;">
                                                 {{avg}}
                                             </p>
                                         </td>
-                                    
-                                    {{#if (checkPreferenceRatio)}}
-                                        <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                            <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;">
-                                                {{med}}
-                                            </p>
-                                        </td>
-                                    {{/if}}
+                                        {{else}}
+                                            {{#if (checkPreferenceRatio)}}
+                                                <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                                    <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;">
+                                                        {{med}}
+                                                    </p>
+                                                </td>
+                                            {{/if}}
+                                        {{/if}}
                                     </tr>
                             {{else}}
                                 <tr>
@@ -3824,18 +3899,20 @@
                                             {{particular}}</p>
                                     </td>
 
+                                {{#if (ccmVPSMetricCheck 'average')}}
                                     <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                                         <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important">
                                             {{avg}}
                                         </p>
                                     </td>
-                                
-                                {{#if (checkPreferenceRatio)}}
-                                    <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                        <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important">
-                                            {{med}}
-                                        </p>
-                                    </td>
+                                {{else}}
+                                    {{#if (checkPreferenceRatio)}}
+                                        <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                            <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important">
+                                                {{med}}
+                                            </p>
+                                        </td>
+                                    {{/if}}
                                 {{/if}}
                                 </tr>
                             {{/if}}
@@ -3846,10 +3923,10 @@
 
 
                     {{#if (containsEvbitdaSelection)}}
-                    <h1 style="padding-left: 32pt;text-indent: -18pt;text-align: left;padding-top: 2%;">EV/EBITDA
+                    <h1 style="padding-left: 32pt;text-indent: -18pt;text-align: left;padding-top: 1%;">EV/EBITDA
                         Multiple</h1>
                     <p style="text-indent: 0pt;text-align: left;"><br /></p>
-                    <p style="padding-left: 15pt;text-indent: 0pt;text-align: left;line-height: 150%;"><span class="p">We
+                    <p style="padding-left: 15pt;text-indent: 0pt;text-align: left;line-height: 150%;padding-bottom: 1%;"><span class="p">We
                             applied the average EV/EBITDA multiples to the Company’s existing
                             EBITDA for the period ending </span><span>{{strdate}}</span><span class="p">.
                             Consequently, we arrived at the enterprise value of the Company as of
@@ -3859,27 +3936,30 @@
                             class="p">, from the indicated enterprise value. The resultant value
                             indicates the fair value of Company's operations as of {{strdate}}.</span></p>
                     <!-- <p style="text-indent: 0pt;text-align: left;padding-top: 1%;"><br /></p> -->
-                    <table style="border-collapse:collapse;margin-left:auto;margin-right: auto;width: 70%;margin-top: 1%;" cellspacing="0">
+                    <table style="border-collapse:collapse;margin-left:auto;margin-right: auto;width: 70%;" cellspacing="0">
                         <tr>
-                            <td style="background-color: #000000 !important;">
+                            <td style="background-color: #001F5F !important;">
                                 <p class="s15"
                                     style="padding-left: 5pt;;text-align: left;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                                     Particulars
                                 </p>
                             </td>
                             {{#if (checkPreferenceRatio)}}
-                                <td style="background-color: #000000 !important;">
-                                    <p class="s15"
-                                        style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
-                                        Average</p>
-                                </td>
-                                <td style="background-color: #000000 !important;">
-                                    <p class="s15"
-                                        style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
-                                        Median</p>
-                                </td>
+                                {{#if (ccmVPSMetricCheck 'average')}}
+                                    <td style="background-color: #001F5F !important;">
+                                        <p class="s15"
+                                            style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
+                                            Average</p>
+                                    </td>
+                                {{else}}
+                                    <td style="background-color: #001F5F !important;">
+                                        <p class="s15"
+                                            style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
+                                            Median</p>
+                                    </td>
+                                {{/if}}
                             {{else}}
-                                <td style="background-color: #000000 !important;">
+                                <td style="background-color: #001F5F !important;">
                                     <p class="s15"
                                         style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                                         Amount</p>
@@ -3896,19 +3976,20 @@
                                         style="padding-left: 5pt;text-indent: 0pt;line-height: 11pt;text-align: left;font-size: 13px !important;font-weight: bold;">
                                         {{particular}}</p>
                                 </td>
-
+                            {{#if (ccmVPSMetricCheck 'average')}}
                                 <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                                     <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;">
                                         {{avg}}
                                     </p>
                                  </td>
-                            
-                            {{#if (checkPreferenceRatio)}}
-                                <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                    <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;">
-                                        {{med}}
-                                    </p>
-                                </td>
+                            {{else}}
+                                {{#if (checkPreferenceRatio)}}
+                                    <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                        <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;">
+                                            {{med}}
+                                        </p>
+                                    </td>
+                                {{/if}}
                             {{/if}}
                             </tr>
                         {{else}}
@@ -3919,19 +4000,20 @@
                                         style="padding-left: 5pt;text-indent: 0pt;line-height: 11pt;text-align: left;font-size: 13px !important">
                                         {{particular}}</p>
                                 </td>
-
+                            {{#if (ccmVPSMetricCheck 'average')}}
                                 <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                                     <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important">
                                         {{avg}}
                                     </p>
                                 </td>
-                            
-                            {{#if (checkPreferenceRatio)}}
-                                <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                    <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important">
-                                        {{med}}
-                                    </p>
-                                </td>
+                            {{else}}
+                                {{#if (checkPreferenceRatio)}}
+                                    <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                        <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important">
+                                            {{med}}
+                                        </p>
+                                    </td>
+                                {{/if}}
                             {{/if}}
                             </tr>
                         {{/if}}
@@ -3941,6 +4023,7 @@
                 </div>
                 {{/if}}
                 
+                {{#if (containsPbAndPeSelection)}}
                 <div style="page-break-before: always;padding-top: 6%;padding-left: 6%;padding-right: 6%;">
                 {{#if (notContainsPsAndEbitdaSelection)}}
                 <h1 style="padding-top: 3pt;padding-left: 3%;text-align: left;">3. Fair
@@ -3953,31 +4036,33 @@
             <p style="padding-left: 15pt;text-indent: 0pt;text-align: left;line-height: 150%;"><span class="p">We
                     applied the average P/BV multiples to the Company’s existing Book
                     Value for the period ending </span><span>{{strdate}}</span><span class="p">. The
-                    resultant value indicates the fair value of </span><span class="s4"
-                    style="text-transform: capitalize;">company's</span><span class="p"> as of
+                    resultant value indicates the fair value of </span><span class="p">company's as of
                 </span><span>{{strdate}}</span><span
                     class="p">.</span></p>
             <p style="text-indent: 0pt;text-align: left;padding-top: 1%;"><br /></p>
-            <table style="border-collapse:collapse;margin-left:auto;margin-right: auto;width: 70%;margin-top: 2%;" cellspacing="0">
+            <table style="border-collapse:collapse;margin-left:auto;margin-right: auto;width: 70%;padding-top: 2%;" cellspacing="0">
                 <tr>
-                    <td style="background-color: #000000 !important;">
+                    <td style="background-color: #001F5F !important;">
                         <p class="s15"
                             style="padding-left: 5pt;text-align: left;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                             Particulars</p>
                     </td>
                     {{#if (checkPreferenceRatio)}}
-                    <td style="background-color: #000000 !important;">
+                    {{#if (ccmVPSMetricCheck 'average')}}
+                    <td style="background-color: #001F5F !important;">
                         <p class="s15"
                             style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                             Average</p>
                     </td>
-                    <td style="background-color: #000000 !important;">
+                    {{else}}
+                    <td style="background-color: #001F5F !important;">
                         <p class="s15"
                             style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                             Median</p>
                     </td>
+                    {{/if}}
                     {{else}}
-                        <td style="background-color: #000000 !important;">
+                        <td style="background-color: #001F5F !important;">
                             <p class="s15" style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                                 Amount
                             </p>
@@ -3993,16 +4078,18 @@
                                 style="padding-left: 5pt;text-indent: 0pt;line-height: 11pt;text-align: left;font-size: 13px !important;font-weight: bold;">
                                 {{particular}}</p>
                         </td>
-                        <td
-                            style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p class="s16"
-                                style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;">
-                                {{avg}}</p>
-                        </td>
-                        {{#if (checkPreferenceRatio)}}
-                        <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;"> {{med}}</p>
-                        </td>
+                        {{#if (ccmVPSMetricCheck 'average')}}
+                            <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                <p class="s16"
+                                    style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;">
+                                    {{avg}}</p>
+                            </td>
+                        {{else}}
+                            {{#if (checkPreferenceRatio)}}
+                            <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;"> {{med}}</p>
+                            </td>
+                            {{/if}}
                         {{/if}}
                     </tr>
                 {{else}}
@@ -4013,16 +4100,18 @@
                                 style="padding-left: 5pt;text-indent: 0pt;line-height: 11pt;text-align: left;font-size: 13px !important">
                                 {{particular}}</p>
                         </td>
-                        <td
-                            style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p class="s16"
-                                style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important">
-                                {{avg}}</p>
-                        </td>
-                        {{#if (checkPreferenceRatio)}}
-                        <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important"> {{med}}</p>
-                        </td>
+                        {{#if (ccmVPSMetricCheck 'average')}}
+                            <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                <p class="s16"
+                                    style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important">
+                                    {{avg}}</p>
+                            </td>
+                        {{else}}
+                            {{#if (checkPreferenceRatio)}}
+                                <td style="width:10% !important;padding-top:1%;padding-bottom:1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                    <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important"> {{med}}</p>
+                                </td>
+                            {{/if}}
                         {{/if}}
                     </tr>
                 {{/if}}
@@ -4038,28 +4127,31 @@
                 <p style="text-indent: 0pt;text-align: left;"><br /></p>
                 <p style="padding-left: 16pt;text-indent: 0pt;text-align: left;line-height: 150%;">We applied the average P/E
                     multiples to the Company’s existing Earnings per share for the period ending {{strdate}}. The
-                    resultant value indicates the fair value of <span style="text-transform: capitalize;">company</span> as of {{strdate}}.</p>
+                    resultant value indicates the fair value of company as of {{strdate}}.</p>
                     <p style="padding-top: 2%;"><br></p>
-                <table style="border-collapse:collapse;margin-left:auto;margin-right: auto;width: 70%;margin-top: 2%;" cellspacing="0">
+                <table style="border-collapse:collapse;margin-left:auto;margin-right: auto;width: 70%;padding-top: 2%;" cellspacing="0">
                     <tr>
-                        <td style="background-color: #000000 !important;">
+                        <td style="background-color: #001F5F !important;">
                             <p class="s15"
                                 style="padding-left: 5pt;text-align: left;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                                 Particulars</p>
                         </td>
                         {{#if (checkPreferenceRatio)}}
-                            <td style="background-color: #000000 !important;">
-                                <p class="s15"
-                                    style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
-                                    Average</p>
-                            </td>
-                            <td style="background-color: #000000 !important;">
-                                <p class="s15"
-                                    style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
-                                    Median</p>
-                            </td>
+                            {{#if (ccmVPSMetricCheck 'average')}}
+                                <td style="background-color: #001F5F !important;">
+                                    <p class="s15"
+                                        style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
+                                        Average</p>
+                                </td>
+                            {{else}}
+                                <td style="background-color: #001F5F !important;">
+                                    <p class="s15"
+                                        style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
+                                        Median</p>
+                                </td>
+                            {{/if}}
                         {{else}}
-                            <td style="background-color: #000000 !important;">
+                            <td style="background-color: #001F5F !important;">
                                 <p class="s15" style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                                     Amount</p>
                             </td>
@@ -4074,18 +4166,21 @@
                                     {{particular}}
                                 </p>
                             </td>
+                        {{#if (ccmVPSMetricCheck 'average')}}
                             <td
                             style="width:auto !important;padding-top: 1%;padding-bottom: 1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                             <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;">{{avg}}
                             </p>
                         </td>
-                        {{#if (checkPreferenceRatio)}}
-                            <td
-                                style="width:auto !important;padding-top: 1%;padding-bottom: 1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                <p class="s16"
-                                    style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;">{{med}}
-                                </p>
-                            </td>
+                        {{else}}
+                            {{#if (checkPreferenceRatio)}}
+                                <td
+                                    style="width:auto !important;padding-top: 1%;padding-bottom: 1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                    <p class="s16"
+                                        style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important;font-weight: bold;">{{med}}
+                                    </p>
+                                </td>
+                            {{/if}}
                         {{/if}}
                         </tr>
                     {{else}}
@@ -4096,24 +4191,26 @@
                                     {{particular}}
                                 </p>
                             </td>
-                            <td
-                            style="width:auto !important;padding-top: 1%;padding-bottom: 1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important">{{avg}}
-                            </p>
-                        </td>
-                        {{#if (checkPreferenceRatio)}}
-                            <td
-                                style="width:auto !important;padding-top: 1%;padding-bottom: 1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                <p class="s16"
-                                    style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important">{{med}}
-                                </p>
-                            </td>
+                        {{#if (ccmVPSMetricCheck 'average')}}
+                                <td style="width:auto !important;padding-top: 1%;padding-bottom: 1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                    <p class="s16" style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important">{{avg}}</p>
+                                </td>
+                        {{else}}
+                            {{#if (checkPreferenceRatio)}}
+                                <td
+                                    style="width:auto !important;padding-top: 1%;padding-bottom: 1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                                    <p class="s16"
+                                        style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-size: 13px !important">{{med}}
+                                    </p>
+                                </td>
+                            {{/if}}
                         {{/if}}
                     </tr>
                     {{/if}}
                     {{/each}}
                 </table>
                 {{/if}}
+                {{#if (moreThanOneMultiple)}}
                 <div>
                     <h1 style="padding-top: 4%;padding-left: 15pt;text-indent: 0pt;text-align: left;">Weighted Average
                         Value per Share</h1>
@@ -4122,23 +4219,23 @@
                         all the multiples used in our analysis to obtain weighted average fair value of the company as
                         of {{strdate}}.</p>
                     <!-- <p style="text-indent: 0pt;text-align: left;padding-top: 2%;"><br /></p> -->
-                    <table style="margin-left:auto;margin-right: auto;margin-top: 2%;width: 90%;" cellspacing="0">
+                    <table style="margin-left:auto;margin-right: auto;padding-top: 1%;width: 90%;" cellspacing="0">
                         <tr>
-                            <td style="background-color: #000000 !important;">
+                            <td style="background-color: #001F5F !important;">
                                 <p class="s15"
-                                    style="padding-top: 6pt;padding-left: 5pt;text-indent: 0pt;text-align: left;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
+                                    style="padding-top: 6pt;padding-left: 5pt;text-indent: 0pt;text-align: left;color:#fff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                                     Particulars</p>
                             </td>
-                            <td style="background-color: #000000 !important;">
+                            <td style="background-color: #001F5F !important;">
                                 <p class="s15"
                                     style="padding-right: 4pt;text-align:right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                                     Fair Value of Equity</p>
                             </td>
-                            <td style="background-color: #000000 !important;">
+                            <td style="background-color: #001F5F !important;">
                                 <p class="s15" style="padding-right: 4pt;text-align:right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">Weights
                                 </p>
                             </td>
-                            <td style="background-color: #000000 !important;" >
+                            <td style="background-color: #001F5F !important;" >
                                 <p class="s15"
                                     style="padding-right: 4pt;text-align:right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                                     Weighted Value</p>
@@ -4151,13 +4248,13 @@
                                 <td
                                     style="width:auto !important;padding-top: 1%;padding-bottom: 1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                                     <p class="s16"
-                                        style="padding-left: 5pt;text-indent: 0pt;line-height: 11pt;text-align: left;font-weight: bold;font-size: 13px !important">{{particular}}</p>
+                                        style="padding-left: 5pt;text-indent: 0pt;line-height: 11pt;text-align: left;font-weight: normal;font-size: 13px !important">{{particular}}</p>
                                 </td>
                                 
                                 <td colspan="3"
                                     style="width:auto !important;padding-top: 1%;padding-bottom: 1%;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
                                     <p class="s16"
-                                        style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-weight: bold;font-size: 13px !important">{{weightedVal}}
+                                        style="padding-right: 4pt;text-indent: 0pt;line-height: 11pt;text-align: right;font-weight: normal;font-size: 13px !important">{{weightedVal}}
                                     </p>
                                 </td>
                             </tr>
@@ -4227,123 +4324,47 @@
                     </table>
                     <p style="text-indent: 0pt;text-align: left;"><br /></p>
                 </div>
+                {{/if}}
                 </div>
+                {{/if}}
     
     <!-- End -->
     {{/modelIncludes}}
 
     {{#modelIncludes 'NET_ASSET_VALUE_APPROACH'}}
-    <div style="page-break-before: always;padding-top: 6%;padding-left: 6%;padding-right: 6%;">
+    <div style="page-break-before: always;padding-top: 1%;padding-left: 3%;padding-right: 3%;">
         <!-- <h2 style="padding-left: 13pt;text-indent: 0pt;text-align: left;font-size: 20px;"><a name="bookmark10">Annexure</a></h2> -->
         <p style="text-indent: 0pt;text-align: left;"><br /></p>
         <!-- <h2 style="padding-left: 10pt;text-indent: 0pt;text-align: left;font-size: 13px;"><a name="bookmark9">Based on the existing financial information as provided to us by the Management the value of the equity shares of the company is derived as follows:
 
             
             </a></h2> -->
-            <h3 style="padding-top: 2pt;padding-left: 10pt;text-indent: 0pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-size: 16px;">Net Asset Value Method</h3>
-        <h3 style="padding-top: 2pt;padding-left: 10pt;text-indent: 0pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-size: 15px;font-weight: 400 !important;">Based on the existing financial information as provided to us by the Management the value of the equity shares of the company is derived as follows:</h3>
-        <h3 style="padding-top: 2pt;padding-left: 10pt;text-indent: 0pt;text-align: left;padding-top: 1%;padding-bottom: 1%;font-size: 15px;font-weight: 400 !important;">To estimate the fair value of the business, we have considered book value of assets and liabilities as fair market value for my calculation purposes.</h3>
+            <h3 style="padding-top: 2pt;padding-left: 10pt;text-indent: 0pt;text-align: left;padding-top: 0.5%;padding-bottom: 0.5%;font-size: 16px;">Net Asset Value Method</h3>
+        <h3 style="padding-top: 2pt;padding-left: 10pt;text-indent: 0pt;text-align: left;padding-top: 0.3%;padding-bottom: 0.3%;font-size: 13px;font-weight: 400 !important;">Based on the existing financial information as provided to us by the Management the value of the equity shares of the company is derived as follows:</h3>
+        <h3 style="padding-top: 2pt;padding-left: 10pt;text-indent: 0pt;text-align: left;padding-top: 0.3%;padding-bottom: 0.3%;font-size: 13px;font-weight: 400 !important;">To estimate the fair value of the business, we have considered book value of assets and liabilities as fair market value for my calculation purposes.</h3>
         <p><span style="float: right;font-size: 13px;"><i>({{currencyUnit}} 
             {{#if (reportingUnit)}}
             in {{reportingUnit}}
             {{/if}})
         </i></span></p>
-        <table style="border-collapse:collapse;margin-left:8pt;width: 100%;" cellspacing="0">
-            <tr style="height:14pt">
-                <td style="width:227pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    bgcolor="#001F5F">
-                    <p class="s15" style="padding-left: 2pt;text-indent: 0pt;line-height: 12pt;text-align: left;color: #ffffff;font-size: 13px !important">
-                        Particulars</p>
-                </td>
-                <td style="width:71pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    bgcolor="#001F5F">
-                    <p class="s15" style="padding-right: 3pt;text-indent: 0pt;line-height: 12pt;text-align: right;color: #ffffff;font-size: 13px !important">
-                        Book Value</p>
-                </td>
-                <td style="width:75pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    bgcolor="#001F5F">
-                    <p class="s15" style="padding-right: 3pt;text-indent: 0pt;line-height: 12pt;text-align: right;color: #ffffff;font-size: 13px !important">
-                        Fair Value</p>
-                </td>
-            </tr>
-           
-            {{#each (netAssetValue data)}}
-            <tbody>
-              <tr style="height:14pt">
-                {{#if (checkHead fieldName "onlyValuePerShare" )}}
+     <!-- NAV table starts -->
+     {{{iterateNAVData}}}
+     <!-- NAV table ends  -->
 
-                    {{#if (checkHead fieldName "")}}
-                        <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                        bgcolor="#001F5F">
-                        <p class="s15" style="padding-left: 2pt;text-indent: 0pt;line-height: 12pt;text-align: left;color: white;font-size: 13px !important">{{fieldName}}</p>
-                        </td>
-                    {{else}}
-                        <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                            bgcolor="#001F5F">
-                            <p class="s15" style="padding-left: 2pt;text-indent: 0pt;line-height: 12pt;text-align: left;color: white;font-size: 13px !important">{{fieldName}}</p>
-                        </td>
-                    {{/if}}
-                    <td style="width:75pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    bgcolor="#001F5F">
-                        <p class="s15" style="padding-right: 3pt;text-indent: 0pt;line-height: 12pt;text-align: right;color: white;font-size: 13px !important">{{bookValue}}
-                        </p>
-                    </td>
-                    <td style="width:75pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    bgcolor="#001F5F">
-                        
-                        <p class="s15" style="padding-right: 3pt;text-indent: 0pt;line-height: 12pt;text-align: right;color: white;font-size: 13px !important">{{fairValue}}
-                        </p>
-                    </td>
-                {{else}}
-                {{#if (checkSubHead fieldName "")}}
-                     {{#if (checkSubHead fieldName "")}}
-                        <td style="width:227pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p class="s15" style="padding-top: 1pt;padding-left: 2pt;text-indent: 0pt;line-height: 11pt;text-align: left;font-size: 13px !important">{{fieldName}}</p>
-                        </td>
-                    {{else}}
-                        <td style="width:227pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p class="s15" style="padding-top: 1pt;padding-left: 2pt;text-indent: 0pt;line-height: 11pt;text-align: left;font-size: 13px !important">{{fieldName}}</p>
-                        </td>
-                    {{/if}}
-                    
-                    <td style="width:75pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s15" style="padding-right: 3pt;text-indent: 0pt;line-height: 12pt;text-align: right;font-size: 13px !important">{{bookValue}}</p>
-                    </td>
-                
-                    <td style="width:75pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s15" style="padding-right: 3pt;text-indent: 0pt;line-height: 12pt;text-align: right;font-size: 13px !important">{{fairValue}}</p>
-                    </td>
-                {{else}}
-                    {{#if (checkHead fieldName "")}}
-                        <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p class="s14" style="padding-top: 1pt;padding-left: 2pt;text-indent: 0pt;line-height: 11pt;text-align: left;font-size: 13px !important">{{fieldName}}</p>
-                        </td>
-                    {{else}}
-                        <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p class="s14" style="padding-top: 1pt;padding-left: 2pt;text-indent: 0pt;line-height: 11pt;text-align: left;font-size: 13px !important">{{fieldName}}</p>
-                        </td>
-                    {{/if}}
-                        <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p class="s14" style="padding-right: 3pt;text-indent: 0pt;line-height: 12pt;text-align: right;font-size: 13px !important">{{bookValue}}</p>
-                        </td>
-
-                        <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p class="s14" style="padding-right: 3pt;text-indent: 0pt;line-height: 12pt;text-align: right;font-size: 13px !important">{{fairValue}}</p>
-                        </td>
-                    {{/if}}
-                {{/if}}
-                </tr>
-              </tr>
-          </tbody>
-          {{/each}}
-        </table>
-
+        {{#if (isValuePerLessThanFairValue 'NAV')}}
         {{#if (isValuePerShareNegative 'NAV')}}
         <p style="line-height: 150%;text-align: justify;margin-left:8pt;padding-top: 2%;" >
             *Since the fair value of the company comes out to be negative and as per the provisions of Companies Act, 
             2013 a company cannot issue shares at a discount, 
             the face value per share of the company is considered as Fair Value per share i.e INR {{faceValue}} ({{faceValueToWords}}).
         </p>
+        {{else}}
+        <p style="line-height: 150%;text-align: justify;margin-left:8pt;padding-top: 2%;" >
+            *Since the fair value of the company is less than the face value and as per the provisions of Companies Act, 
+            2013 a company cannot issue shares at a discount, 
+            the face value per share of the company is considered as Fair Value per share i.e INR {{faceValue}} ({{faceValueToWords}}).
+        </p>
+        {{/if}}
         {{/if}}
     </div>
     {{/modelIncludes}}
@@ -4358,8 +4379,11 @@
     <p style="padding-left: 28pt;text-indent: 0pt;text-align: justify;padding-top: 2%;line-height: 150%;"><span class="h1">Based on our study and
             analytical review procedures, and subject to the limitations expressed within this report, our opinion of
             fair value of </span><span class="s1" style="">{{natureOfInstrument}} of
-            {{companyName}}</span><span class="h1">, to comply with the relevant provisions of the {{sectionAndPurposeOfReport}} in relation
-            to {{sectionAsPerIncomeTaxAndFema}} of {{natureOfInstrument}}, as of </span><span class="s1"
+            {{companyName}}, as of </span>
+            <!-- <span class="h1">, -->
+                 <!-- to comply with the relevant provisions of the {{sectionAndPurposeOfReport}} in relation -->
+            <!-- to {{sectionAsPerIncomeTaxAndFema}} of {{natureOfInstrument}},</span> -->
+            <span class="s1"
             style="">{{strdate}}</span><span class="h1">:</span></p>
 
 
@@ -4367,19 +4391,19 @@
             <table style="border-collapse:collapse;margin-left:auto;margin-right: auto;margin-top: 4%;width: 70%;" cellspacing="0">
                 <tr>
                     <td style="width:20% !important;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt;border-top: 1px solid #3d3d3d;border-left: 1px solid #3d3d3d;border-right: 1px solid #3d3d3d;"
-                        bgcolor="#000000">
+                        bgcolor="#001F5F">
                         <p class="s15"
                             style="padding-left: 5pt;;text-align: left;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                             Particulars</p>
                     </td>
                     <td style="width:10% !important;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt;border-right: 1px solid #3d3d3d;border-top: 1px solid #3d3d3d;"
-                        bgcolor="#000000">
+                        bgcolor="#001F5F">
                         <p class="s15"
                             style="text-align: center;color: #ffffff;padding-top: 2%;padding-bottom: 2%;padding-left: 2%;padding-right: 2%;font-size: 13px !important">
                             Weights</p>
                     </td>
                     <td style="width:10% !important;border-left-style:solid;border-left-width:1pt;border-right-style:solid;border-right-width:1pt;border-top: 1px solid #3d3d3d;border-right: 1px solid #3d3d3d"
-                        bgcolor="#000000">
+                        bgcolor="#001F5F">
                         <p class="s15"
                             style="padding-right: 3pt;text-align: right;color: #ffffff;padding-top: 2%;padding-bottom: 2%;font-size: 13px !important">
                             Weighted Value</p>

@@ -305,6 +305,8 @@ export class KeyCloakAuthGuard implements CanActivate {
           );
         })
       )
+    }),catchError((error)=>{
+      return throwError(error)
     }))
   }
 

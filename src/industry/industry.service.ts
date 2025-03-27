@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { COST_OF_EQUITY_METHOD } from 'src/constants/constants';
+import { convertToNumberOrZero } from 'src/excelFileServices/common.methods';
 
 @Injectable()
 export class IndustryService {
@@ -45,14 +47,25 @@ export class IndustryService {
   }
 
   async CAPM_Method(inputs: any): Promise<number> {
-    const { riskFreeRate, expMarketReturn, beta, riskPremium } = inputs;
+    let adjustedCostOfEquity = 0, costOfEquity = 0;   
 
-    //Cost of Equity Calculation, formula: =+C15+(C16-C15)*C17
-    const COECalculation =
-      riskFreeRate + (parseFloat(expMarketReturn) - riskFreeRate) * beta;
-    console.log('COE bare ',COECalculation,' ',riskFreeRate,' ',parseFloat(expMarketReturn),' ',beta,' ',riskPremium);
-    //Adjusted Cost of Equity, formula: =+C18+C19
-    const adjustedCostOfEquity = COECalculation + parseFloat(riskPremium);
+    const { riskFreeRate, expMarketReturn, beta, riskPremium, coeMethod, sizePremium, industryRiskPremium } = inputs;
+
+    if(coeMethod === COST_OF_EQUITY_METHOD.capm.key){
+      costOfEquity = convertToNumberOrZero(riskFreeRate) + (convertToNumberOrZero(expMarketReturn) - convertToNumberOrZero(riskFreeRate)) * convertToNumberOrZero(beta);
+      adjustedCostOfEquity = costOfEquity + convertToNumberOrZero(riskPremium);
+    }
+    else if(coeMethod === COST_OF_EQUITY_METHOD.buildUpCapm.key){
+      
+      costOfEquity = convertToNumberOrZero(riskFreeRate) + 
+      (
+        convertToNumberOrZero(expMarketReturn) - convertToNumberOrZero(riskFreeRate)
+      ) + 
+      convertToNumberOrZero(industryRiskPremium) + convertToNumberOrZero(sizePremium);
+
+      adjustedCostOfEquity = costOfEquity + convertToNumberOrZero(riskPremium);
+    }
+    
     return adjustedCostOfEquity;
   }
 

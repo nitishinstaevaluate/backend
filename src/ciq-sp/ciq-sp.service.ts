@@ -6,7 +6,7 @@ import { CiqindustryhierarchyDto, CiqIndustryListDto, CiqSegmentDescriptionDto }
 import { SnowflakeClientServiceService } from 'src/snowflake/snowflake-client-service.service';
 import { ciqcompanystatustypeDocument, ciqcompanytypeDocument, ciqindustryhierarchyDocument, ciqsimpleindustryDocument } from './schema/ciq-sp.chema';
 import { RedisService } from 'src/middleware/redisConfig';
-import { ProcessStatusManagerService } from 'src/processStatusManager/process-status-manager.service';
+import { ProcessStatusManagerService } from 'src/processStatusManager/service/process-status-manager.service';
 import { axiosInstance, axiosRejectUnauthorisedAgent } from 'src/middleware/axiosConfig';
 import { CAPITALIQ_MARKET } from 'src/library/interfaces/api-endpoints.prod';
 import { convertToNumberOrOne, convertToNumberOrZero } from 'src/excelFileServices/common.methods';
@@ -746,6 +746,22 @@ export class CiqSpService {
             error: error,
             status: false,
             msg: 'beta working upsertion failed',
+          },
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    }
+
+    async cloneBetaWorking(payload){
+      try{
+        return await this.ciqSpBetaService.cloneBetaWorkingAggregate(payload);
+      }
+      catch(error){
+        throw new HttpException(
+          {
+            error: error,
+            status: false,
+            msg: 'beta working clone failed',
           },
           HttpStatus.INTERNAL_SERVER_ERROR,
         );

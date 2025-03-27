@@ -1,48 +1,49 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { IndustryService } from 'src/industry/industry.service';
-import {
-  GetPAT,
+import  {
   DepAndAmortisation,
   OtherNonCashItemsMethod,
   OtherNonCashItemsMethodNext,
   ChangeInNCA,
-  DeferredTaxAssets,
-  ChangeInFixedAssets,
-  GetDebtAsOnDate,
-  CashEquivalents,
-  SurplusAssets,
   CostOfDebt,
   ProportionOfDebt,
   ProportionOfEquity,
   POPShareCapital,
   CapitalStructure,
   POPShareCapitalLabelPer,
-  CapitalStruc,
   getShareholderFunds,
-  changeInBorrowings,
-  interestAdjustedTaxes,
   fcfeTerminalValue,
   fcffTerminalValue,
-  interestAdjustedTaxesWithStubPeriod,
-  changeInNcaFromAssessment,
-  netOperatingAssetsFromAssessment,
+  capitalStructureComputation,
+  v2otherNonOperatingAssetsComputation,
+  v2interestAdjustedTaxes,
+  v2changeInNcaFromAssessment,
+  v2DeferredTaxAssets,
+  v2changeInFixedAsset,
+  v2GetDebtAsOnDate,
+  v2CashEquivalents,
+  v2SurplusAssets,
+  v2ChangeInBorrowings,
+  v2NetOperatingAssetsFromAssessment,
+  v2PatComputation,
   // differenceAssetsLiabilities
 } from '../excelFileServices/fcfeAndFCFF.method';
-import { getYearsList, calculateDaysFromDate,getCellValue,getDiscountingPeriod,searchDate, parseDate, getFormattedProvisionalDate, calculateDateDifference, convertToNumberOrZero, getRequestAuth } from '../excelFileServices/common.methods';
+import { getYearsList, calculateDaysFromDate,getCellValue,getDiscountingPeriod,searchDate, parseDate, getFormattedProvisionalDate, calculateDateDifference, convertToNumberOrZero, getRequestAuth, extractYearsFromKeys, getDateKey } from '../excelFileServices/common.methods';
 import { sheet1_PLObj, sheet2_BSObj ,columnsList} from '../excelFileServices/excelSheetConfig';
 import { CustomLogger } from 'src/loggerService/logger.service';
-import { GET_DATE_MONTH_YEAR_FORMAT, GET_MULTIPLIER_UNITS, MODEL } from 'src/constants/constants';
+import { BALANCE_SHEET, EXCEL_CONVENTION, GET_DATE_MONTH_YEAR_FORMAT, GET_MULTIPLIER_UNITS, MODEL } from 'src/constants/constants';
 import { any } from 'joi';
 import { async } from 'rxjs';
 import { transformData } from 'src/report/report-common-functions';
 import { terminalValueWorkingService } from './terminal-value-working.service';
-import { ProcessStatusManagerService } from 'src/processStatusManager/process-status-manager.service';
+import { ProcessStatusManagerService } from 'src/processStatusManager/service/process-status-manager.service';
 import { ValuationsService } from './valuationProcess.service';
 import * as XLSX from 'xlsx';
 import e from 'express';
 import { PostDcfValuationDto, PostMainValuationDto } from './dto/valuations.dto';
 import { SensitivityAnalysisService } from 'src/sensitivity-analysis/service/sensitivity-analysis.service';
 import { authenticationTokenService } from 'src/authentication/authentication-token.service';
+import { ExcelArchiveService } from 'src/excel-archive/service/excel-archive.service';
 const date = require('date-and-time');
 
 @Injectable()
@@ -54,7 +55,8 @@ export class FCFEAndFCFFService {
     private readonly valuationService: ValuationsService,
     private readonly terminalYearWorkingService: terminalValueWorkingService,
     private readonly sensitivityAnalysisService: SensitivityAnalysisService,
-    private readonly authenticationTokenService: authenticationTokenService
+    private readonly authenticationTokenService: authenticationTokenService,
+    private readonly excelArchiveService: ExcelArchiveService
   ) {}
 
   //Common Method for FCFE and FCFF Methods
@@ -479,19 +481,23 @@ export class FCFEAndFCFFService {
   async fcfeAndFcffValuation(body:any){
     try{
       const dataInputs = body.inputs;
-      const worksheet1 = body.worksheet1;
-      const worksheet2 = body.worksheet2;
+      // const worksheet1 = body.worksheet1;
+      // const worksheet2 = body.worksheet2;
 
+      const processId = dataInputs?.processStateId;
+
+      const {balanceSheetData, profitLossSheetData, assessmentSheetData} = await this.getSheetData(processId);
+      const yearsList = extractYearsFromKeys(balanceSheetData[0]);
+      const getProvDate = getDateKey(balanceSheetData[0]);
       const { outstandingShares } = dataInputs;
       let multiplier = GET_MULTIPLIER_UNITS[`${dataInputs.reportingUnit}`];
 
-      const  costOfEquity =  await this.computeCostOfEquity(dataInputs, worksheet2);
+      const  costOfEquity =  await this.computeCostOfEquity(dataInputs, balanceSheetData);
 
-      const yearsActual = await getYearsList(worksheet1);
+      // const yearsActual = await getYearsList(worksheet2);
 
-      let provisionalDates = worksheet1['B1'].v || worksheet2['B1'].v;
-
-      let  provDtRef = parseDate(provisionalDates.trim());
+      // let provisionalDates = worksheet1['B1'].v || worksheet2['B1'].v;
+      let  provDtRef = parseDate(getProvDate.trim());
       console.log(provDtRef,"provisional date")
 
       const decodeValuationDate =  new Date(dataInputs.valuationDate);    //Since valuation date is in unix time stamp, we need to convert it into readable date format which is eg. 2023-03-30T18:30:00.000Z
@@ -517,7 +523,7 @@ export class FCFEAndFCFFService {
 
     console.log(checkPartialFinancialYear,"partial financial year")
 
-    const years = yearsActual.slice(0,parseInt(dataInputs.projectionYears)+1);
+    const years = yearsList.slice(0,parseInt(dataInputs.projectionYears)+1);
 
     const aggregateBody = {
       years,
@@ -527,7 +533,10 @@ export class FCFEAndFCFFService {
       isDiscountingFactorAdjustmentRequired,
       totalDaysDifferenceDiscountingFactor,
       checkPartialFinancialYear,
-      provDtRef
+      provDtRef,
+      balanceSheetData,
+      profitLossSheetData,
+      assessmentSheetData
     }
 
     const resultAggregate:any = await this.assessValuation(aggregateBody); //calculating whole aggregate 
@@ -552,7 +561,8 @@ export class FCFEAndFCFFService {
       const data = await this.transformData(resultAggregate.resultArray);
       return {
         result: resultAggregate.resultArray, tableData:data.transposedResult, 
-        valuation:checkIfStub? resultAggregate.resultArray[0].equityValueNew :resultAggregate.resultArray[0].equityValue,
+        // valuation:checkIfStub? resultAggregate.resultArray[0].equityValueNew :resultAggregate.resultArray[0].equityValue,
+        valuation:resultAggregate.resultArray[0].valuePerShare,
         columnHeader:data.columnHeader,provisionalDate,
         terminalValueWorking:resultAggregate.terminalValueWorking,
         msg: 'Executed Successfully' 
@@ -571,15 +581,16 @@ export class FCFEAndFCFFService {
     }
     }
 
-    async computeCostOfEquity(inputs, worksheet2){
+    async computeCostOfEquity(inputs, balanceSheetData){
       let costOfEquity = 0 
       if(inputs?.model?.includes('FCFE')){
         costOfEquity = await this.industryService.CAPM_Method(inputs);
       }
       else if(inputs?.model?.includes('FCFF')){
         const adcoe = await this.industryService.CAPM_Method(inputs);
-        const shareholderFunds = await getShareholderFunds(0,worksheet2);
-        const capitalStruc = await CapitalStruc(0,worksheet2,shareholderFunds,inputs);
+        const provisionalDate = getDateKey(balanceSheetData[0]);
+        const balanceSheetComputed = await this.serializeArrayObject(balanceSheetData);
+        const capitalStruc = await capitalStructureComputation(provisionalDate, balanceSheetComputed, inputs);
         const calculateWaccPayload = {
           adjustedCostOfEquity:adcoe,
           capitalStruc,
@@ -666,22 +677,49 @@ export class FCFEAndFCFFService {
       return !(provisionalMonth === 3 && provisionalDay === 31);    //Since we need to check if provisional date is of 31st if the provisional date is equal to 31st, march 2023 then discounting adjustment factor is applicable
     }
 
-    async recalculatePat(index, worksheet){
-      let pat = await GetPAT(index+1, worksheet);
-      let patOld = await GetPAT(index,worksheet);
-      return pat-patOld;
+    async recalculatePat(index,keysToProcess, profitLossData, operationRequired?){
+      if(operationRequired){
+        let pat = await v2PatComputation(keysToProcess[index+1], profitLossData);
+        let patOld = await v2PatComputation(keysToProcess[index],profitLossData);
+        return pat-patOld;
+      }
+      else{
+        return await v2PatComputation(keysToProcess[index], profitLossData);
+      }
     }
 
-    async recalculateDepnAndAmortisation(index, worksheet){
-      let depAndAmortisation = await DepAndAmortisation(index+1, worksheet);
-      let DepAndAmortisationOld = await DepAndAmortisation(index,worksheet);
-      return depAndAmortisation-DepAndAmortisationOld;
+    async recalculateDepnAndAmortisation(index, keysToProcess, profitLossData, operationRequired?){
+      if(operationRequired){
+        let depAndAmortisation = await DepAndAmortisation(keysToProcess[index+1], profitLossData);
+        let DepAndAmortisationOld = await DepAndAmortisation(keysToProcess[index],profitLossData);
+        return depAndAmortisation-DepAndAmortisationOld;
+      }
+      else{
+        return await DepAndAmortisation(keysToProcess[index], profitLossData);
+      }
     }
 
-    async recalculateOtherNonCashItems(index, worksheet){
-      let otherNonCashItem = await OtherNonCashItemsMethodNext(index+1, worksheet);
-      let otherNonCashItemOld = await OtherNonCashItemsMethodNext(index,worksheet);
-      return otherNonCashItem-otherNonCashItemOld;
+    async recalculateOtherNonCashItems(index, keysToProcess,  profitLossData, operationRequired?){
+      if(operationRequired){
+        let otherNonCashItem = await v2otherNonOperatingAssetsComputation(keysToProcess[index+1], profitLossData);
+        let otherNonCashItemOld = await v2otherNonOperatingAssetsComputation(keysToProcess[index],profitLossData);
+        return otherNonCashItem-otherNonCashItemOld;
+      }
+      else{
+        return await v2otherNonOperatingAssetsComputation(keysToProcess[index], profitLossData);
+      }
+    }
+
+    async recalculateInterestAdjustedTaxes(index, keysToProcess,  profitLossData, taxRate, operationRequired?){
+      if(operationRequired){
+        let otherNonCashItem = await v2interestAdjustedTaxes(keysToProcess[index+1], profitLossData);
+        let otherNonCashItemOld = await v2interestAdjustedTaxes(keysToProcess[index],profitLossData);
+        return (otherNonCashItem-otherNonCashItemOld) * (1 - parseFloat(taxRate) / 100);
+      }
+      else{
+        return (await v2interestAdjustedTaxes(keysToProcess[index], profitLossData)) * 
+        (1 - parseFloat(taxRate) / 100);
+      }
     }
 
     async calculateWacc(waccPayload){
@@ -700,23 +738,32 @@ export class FCFEAndFCFFService {
         let multiplier = GET_MULTIPLIER_UNITS[`${aggregatePayload.inputs.reportingUnit}`];
         let counter = 0, debtOnIndexZero, discountingFactorWacc, secondLastFcfe = 0, sumOfCashFlows = 0, equityValue = 0,terminalDiscountingPeriod;      //This will act as index inside for loop;
         const years = aggregatePayload.years;
-        const worksheet1 = aggregatePayload.worksheet1;
-        const worksheet2 = aggregatePayload.worksheet2;
-        const worksheet3 = aggregatePayload.worksheet3;
+        // const worksheet1 = aggregatePayload.worksheet1;
+        // const worksheet2 = aggregatePayload.worksheet2;
+        // const worksheet3 = aggregatePayload.worksheet3;
+        const balanceSheetData = aggregatePayload.balanceSheetData;
+        const profitLossSheetData = aggregatePayload.profitLossSheetData;
+        const assessmentSheetData = aggregatePayload.assessmentSheetData;
+        const sortedData = Object.keys(balanceSheetData[0]).sort((a, b) => (/\d{2}-\d{2}-\d{4}/.test(a) ? -1 : 1)).reduce((acc, key) => ({ ...acc, [key]: balanceSheetData[0][key] }), {});
+        const keysToProcess = Object.keys(sortedData).filter((key,index) => key !== 'lineEntry' && index !== 2);
+        const profitLossComputed = await this.serializeArrayObject(profitLossSheetData);
+        const balanceSheetComputed = await this.serializeArrayObject(balanceSheetData);
+        const assessmentComputed = await this.serializeArrayObject(assessmentSheetData);
 
-        const adjustedCostOfEquity = await this.industryService.CAPM_Method(aggregatePayload.inputs);
-        const shareholderFunds = await getShareholderFunds(0,worksheet2);
-        const capitalStruc = await CapitalStruc(0,worksheet2,shareholderFunds,aggregatePayload.inputs);
+        const costOfEquity = await this.computeCostOfEquity(aggregatePayload.inputs, balanceSheetData);
+        // const adjustedCostOfEquity = await this.industryService.CAPM_Method(aggregatePayload.inputs);
+        // // const shareholderFunds = await getShareholderFunds(0,worksheet2);
+        // const capitalStruc = await CapitalStruc(0,worksheet2,shareholderFunds,aggregatePayload.inputs);
         const otherAdj = parseFloat(aggregatePayload.inputs.otherAdj) || 0; 
-        const calculateWaccPayload = {
-          adjustedCostOfEquity,
-          capitalStruc,
-          costOfDebt: aggregatePayload.inputs.costOfDebt,
-          taxRate: aggregatePayload.inputs.taxRate,
-          copShareCapital: aggregatePayload.inputs.copShareCapital
-        }
+        // const calculateWaccPayload = {
+        //   adjustedCostOfEquity,
+        //   capitalStruc,
+        //   costOfDebt: aggregatePayload.inputs.costOfDebt,
+        //   taxRate: aggregatePayload.inputs.taxRate,
+        //   copShareCapital: aggregatePayload.inputs.copShareCapital
+        // }
 
-        const calculatedWacc = await this.calculateWacc(calculateWaccPayload);
+        // const calculatedWacc = await this.calculateWacc(calculateWaccPayload);
 
         const yearLength = years.length - 1;
         let resultArray = [];
@@ -753,42 +800,39 @@ export class FCFEAndFCFFService {
 
             //  In this if condition itself we are recalculating all the values
             if(counter === 0 && aggregatePayload.checkPartialFinancialYear){    //checking if the the provisional date is not 31st,March
-              console.log("inside partial years calculations")
-              pat  = await this.recalculatePat(counter, worksheet1);
-              depAndAmortisation = await this.recalculateDepnAndAmortisation(counter, worksheet1);
-              otherNonCashItems = await this.recalculateOtherNonCashItems(counter, worksheet1);
-              addInterestAdjTaxes = await interestAdjustedTaxesWithStubPeriod(counter, worksheet1, aggregatePayload?.inputs?.taxRate);
+              pat  = await this.recalculatePat(counter, keysToProcess, profitLossComputed, true);
+              depAndAmortisation = await this.recalculateDepnAndAmortisation(counter, keysToProcess,  profitLossComputed, true);
+              otherNonCashItems = await this.recalculateOtherNonCashItems(counter, keysToProcess, profitLossComputed, true);
+              addInterestAdjTaxes = await this.recalculateInterestAdjustedTaxes(counter, keysToProcess, profitLossComputed, aggregatePayload?.inputs?.taxRate, true);
             }
             else if(counter !== yearLength){
-              pat = await GetPAT(counter+1, worksheet1);
-              depAndAmortisation = await DepAndAmortisation(counter+1, worksheet1);
-              otherNonCashItems = await OtherNonCashItemsMethodNext(counter+1, worksheet1);
-              addInterestAdjTaxes = await interestAdjustedTaxes(counter, worksheet1, aggregatePayload?.inputs?.taxRate)
+              pat  = await this.recalculatePat(counter+1, keysToProcess, profitLossComputed);
+              depAndAmortisation = await this.recalculateDepnAndAmortisation(counter+1, keysToProcess,  profitLossComputed);
+              otherNonCashItems = await this.recalculateOtherNonCashItems(counter+1, keysToProcess, profitLossComputed);
+              addInterestAdjTaxes = await this.recalculateInterestAdjustedTaxes(counter+1, keysToProcess, profitLossComputed, aggregatePayload?.inputs?.taxRate);
             }
 
             if(counter !== yearLength){
-              changeInNca =  await changeInNcaFromAssessment(counter, worksheet3);
+              changeInNca =  await v2changeInNcaFromAssessment(keysToProcess[counter+1], assessmentComputed);
             }
             
-            deferredTaxAssets = await DeferredTaxAssets(counter, worksheet2);
+            deferredTaxAssets = await v2DeferredTaxAssets(keysToProcess[counter], balanceSheetComputed, keysToProcess);
             
-            changeInFixedAssets =  -(await ChangeInFixedAssets(counter, worksheet2) + depAndAmortisation);  //Since formula for changeInFixedAssets =  -(closing value - opening value + depnAndAmortisation) - As per discussions with sonal  02-03-2024
-            console.log(changeInFixedAssets, "fixed assets")
+            changeInFixedAssets =  - (await v2changeInFixedAsset(keysToProcess[counter], balanceSheetComputed, profitLossComputed, keysToProcess) + depAndAmortisation);  //Since formula for changeInFixedAssets =  -(closing value - opening value + depnAndAmortisation) - As per discussions with sonal  02-03-2024
 
-            debtAsOnDate = await GetDebtAsOnDate(counter, worksheet2);
+            debtAsOnDate = await v2GetDebtAsOnDate(keysToProcess[counter], balanceSheetComputed);
 
             if(counter === 0){
               debtOnIndexZero = debtAsOnDate; 
+              surplusAssets = await v2SurplusAssets(keysToProcess[counter], balanceSheetComputed);
+              cashEquivalents = await v2CashEquivalents(keysToProcess[counter], balanceSheetComputed);
             }
-
-            cashEquivalents = await CashEquivalents(counter, worksheet2);
-            surplusAssets = await SurplusAssets(counter, worksheet2);
-            changeInBorrowing = await changeInBorrowings(counter, worksheet2);
+            changeInBorrowing = await v2ChangeInBorrowings(keysToProcess[counter], balanceSheetComputed, keysToProcess);
 
             if (aggregatePayload.inputs.model.includes('FCFE')) {
-              netCashFlow = pat + depAndAmortisation + otherNonCashItems + changeInNca + deferredTaxAssets + changeInBorrowing;
+              netCashFlow = pat + depAndAmortisation + otherNonCashItems + changeInNca + deferredTaxAssets + changeInBorrowing; // Removed Deferred tax
             } else {
-              netCashFlow = pat + depAndAmortisation + otherNonCashItems + changeInNca + deferredTaxAssets  + addInterestAdjTaxes;
+              netCashFlow = pat + depAndAmortisation + otherNonCashItems + changeInNca + deferredTaxAssets + addInterestAdjTaxes;
             }
 
             // const differenceInFixedAssetAndDepnAndAmortisation = changeInFixedAssets;
@@ -799,11 +843,11 @@ export class FCFEAndFCFFService {
     
             if  (counter === yearLength && aggregatePayload.inputs.model.includes('FCFE')) {
               console.log(secondLastFcfe,"")
-              fcfeValueAtTerminalRate = await fcfeTerminalValue(secondLastFcfe, aggregatePayload.inputs.terminalGrowthRate,adjustedCostOfEquity)
+              fcfeValueAtTerminalRate = await fcfeTerminalValue(secondLastFcfe, aggregatePayload.inputs.terminalGrowthRate,costOfEquity)
               // discountingPeriodValue = discountingPeriodValue - 1;
             } 
             else if (counter === yearLength && aggregatePayload.inputs.model.includes('FCFF')) {
-              fcfeValueAtTerminalRate = await fcffTerminalValue(secondLastFcfe, aggregatePayload.inputs.terminalGrowthRate, calculatedWacc)
+              fcfeValueAtTerminalRate = await fcffTerminalValue(secondLastFcfe, aggregatePayload.inputs.terminalGrowthRate, costOfEquity)
               // discountingPeriodValue = discountingPeriodValue - 1;
             }
 
@@ -812,20 +856,20 @@ export class FCFEAndFCFFService {
               terminalDiscountingPeriod = discountingPeriodValue-1;
             }
 
-            if (aggregatePayload.inputs.model.includes('FCFE')) {
+            // if (aggregatePayload.inputs.model.includes('FCFE')) {
               if (counter !== yearLength){
-                discountingFactorWacc = 1/ (1+adjustedCostOfEquity/100) ** (discountingPeriodValue)
+                discountingFactorWacc = 1/ (1+costOfEquity/100) ** (discountingPeriodValue)
               }
               console.log('Disc COE ', discountingFactorWacc)
              
-            } 
-            else if (aggregatePayload.inputs.model.includes('FCFF')) {
-              if (counter !== yearLength){
-                discountingFactorWacc = 1/ (1+calculatedWacc) ** (discountingPeriodValue)
-              }
-              console.log('Disc WACC ', discountingFactorWacc)
+            // } 
+            // else if (aggregatePayload.inputs.model.includes('FCFF')) {
+            //   if (counter !== yearLength){
+            //     discountingFactorWacc = 1/ (1+calculatedWacc) ** (discountingPeriodValue)
+            //   }
+            //   console.log('Disc WACC ', discountingFactorWacc)
             
-            } 
+            // } 
 
             if(counter === yearLength){
                 presentFCFF = discountingFactorWacc * fcfeValueAtTerminalRate;
@@ -838,7 +882,7 @@ export class FCFEAndFCFFService {
                 terminalValueDepAndAmortisation = depAndAmortisation * (1 + (aggregatePayload.inputs.terminalGrowthRate/100));
                 
                 // calculating Changes In NCA
-                const netOperatingAssets = await netOperatingAssetsFromAssessment(counter,worksheet3);
+                const netOperatingAssets = await v2NetOperatingAssetsFromAssessment(keysToProcess[counter], assessmentComputed);
                 const terminalValueNetOperatingAsset = netOperatingAssets * (1 + (aggregatePayload.inputs.terminalGrowthRate/100));
                 terminalValueNca = netOperatingAssets - terminalValueNetOperatingAsset;
 
@@ -911,8 +955,8 @@ export class FCFEAndFCFFService {
                 convertToNumberOrZero(terminalValueAddInterestAdjTaxes) + 
                 convertToNumberOrZero(terminalValueDepAndAmortisation) + 
                 convertToNumberOrZero(otherNonCashItems) + 
-                convertToNumberOrZero(terminalValueNca) + 
-                convertToNumberOrZero(terminalValueChangeInBorrowings);
+                convertToNumberOrZero(terminalValueNca)
+                // convertToNumberOrZero(terminalValueChangeInBorrowings);
               }
               terminalValueWorking = {
                 particulars: 'Terminal Value',
@@ -933,9 +977,20 @@ export class FCFEAndFCFFService {
                 terminalValueBasedOnLastYear:fcfeValueAtTerminalRate,
                 explicitYear: `${parseInt(individualYear)-1}-${parseInt(individualYear)}`
               }
+              // As per Nitish, for FCFF change in borrowings should not be applied
+              if(isFCFF){
+                delete terminalValueWorking.changeInBorrowing;
+              }
             }
-            
-            discountingPeriodValue = discountingPeriodValue + 1;
+            if(counter === 0 && !discountingPeriodObj.isFullPrd){
+              /**
+               * Applicable only for Mid period
+               */
+              discountingPeriodValue = discountingPeriodValue * 2 + 0.5;
+            }
+            else{
+              discountingPeriodValue = discountingPeriodValue + 1;
+            }
             
             secondLastFcfe = fcff; 
             if(result){
@@ -1006,6 +1061,7 @@ export class FCFEAndFCFFService {
       const useReportIdFromSA = payload?.useReportIdFromSA || false;
       const updateByValuationId = payload?.updateByValuationId || null;
       const updateTerminalSelectionAndPrimarySAvaluation = payload?.updateTerminalSelectionAndPrimarySAvaluation || false;
+      const { profitLossSheetData, balanceSheetData, assessmentSheetData } = await this.getSheetData(processId);
 
       const fourthStageDetails:any = await this.processManagerService.fetchStageWiseDetails(processId, 'fourthStageInput');
       const sensitivityAnalysisId = fourthStageDetails.data?.fourthStageInput?.sensitivityAnalysisId;
@@ -1062,9 +1118,9 @@ export class FCFEAndFCFFService {
       firstElement.equityValue = inputs.model.includes('FCFE') ? (firstElement.sumOfCashFlows + firstElement.pvTerminalValue + firstElement.cashEquivalents + otherAdjustment + firstElement.surplusAssets) : (firstElement.sumOfCashFlows + firstElement.pvTerminalValue + firstElement.cashEquivalents - firstElement.debtOnDate + firstElement.surplusAssets + otherAdjustment);
       firstElement.valuePerShare = (firstElement.equityValue*multiplier)/inputs.outstandingShares;
 
-      const {isStubRequired, totalDaysDifferenceStubAdjustment, provisionalDate, worksheet2} = await this.fetchStubAdjustment(inputs);
+      const {isStubRequired, totalDaysDifferenceStubAdjustment, provisionalDate} = await this.fetchStubAdjustment(inputs, balanceSheetData);
       if (isStubRequired && totalDaysDifferenceStubAdjustment > 1) { //based on the above conditions, calculating stub
-        const costOfEquity = await this.computeCostOfEquity(inputs, worksheet2);
+        const costOfEquity = await this.computeCostOfEquity(inputs, balanceSheetData);
         let stubFactor = (1 + totalDaysDifferenceStubAdjustment/365) ** (costOfEquity/100)-1;
         let equityValueToAdj = stubFactor * firstElement.equityValue;
         
@@ -1094,7 +1150,8 @@ export class FCFEAndFCFFService {
      let dcfValuationDto = new PostDcfValuationDto();
      dcfValuationDto.model = inputs.model.includes('FCFE') ? MODEL[0] : MODEL[1];
      dcfValuationDto.valuationData = transformValuation.transposedResult;
-     dcfValuationDto.valuation = isStubRequired? firstElement.equityValueNew : firstElement.equityValue;
+    //  dcfValuationDto.valuation = isStubRequired? firstElement.equityValueNew : firstElement.equityValue;
+     dcfValuationDto.valuation = firstElement.valuePerShare;
      dcfValuationDto.terminalYearWorking = terminalYearWorking;
      dcfValuationDto.columnHeader = transformValuation.columnHeader;
      dcfValuationDto.provisionalDate = provisionalDate;
@@ -1147,7 +1204,7 @@ export class FCFEAndFCFFService {
 
       const terminalYearBase:any = await this.terminalYearWorkingService.computeTerminalValue(processId, updateByValuationId);
       const otherAdjustment = convertToNumberOrZero(fourthStageDetails.data?.fourthStageInput?.otherAdj);
-      const mainValuationDto = await this.computeRevaluation(updateByValuationId, type, terminalYearBase, otherAdjustment);
+      const mainValuationDto = await this.computeRevaluation(updateByValuationId, type, terminalYearBase, otherAdjustment, processId);
     
     return  {
       ...mainValuationDto,
@@ -1250,7 +1307,7 @@ export class FCFEAndFCFFService {
       const terminalYearBase:any = await this.terminalYearWorkingService.computeTerminalValue(processId, valuationId);
       const otherAdjustment = convertToNumberOrZero(fourthStageDetails.data?.fourthStageInput?.otherAdj);
 
-      const mainValuationDto = await this.computeRevaluation(valuationId, type, terminalYearBase, otherAdjustment);
+      const mainValuationDto = await this.computeRevaluation(valuationId, type, terminalYearBase, otherAdjustment, processId);
 
     return  {
       ...mainValuationDto,
@@ -1263,9 +1320,10 @@ export class FCFEAndFCFFService {
     }
   }
 
-  async computeRevaluation(valuationId, type, terminalYearBase, otherAdjustment){
+  async computeRevaluation(valuationId, type, terminalYearBase, otherAdjustment, processId){
    try{
     const valuation:any = await this.valuationService.getValuationById(valuationId);
+    const { profitLossSheetData, balanceSheetData, assessmentSheetData } = await this.getSheetData(processId);
 
     const inputs:any = valuation.inputData[0];
     let multiplier = GET_MULTIPLIER_UNITS[`${inputs.reportingUnit}`];
@@ -1294,9 +1352,9 @@ export class FCFEAndFCFFService {
     firstElement.equityValue = inputs.model.includes('FCFE') ? (firstElement.sumOfCashFlows + firstElement.pvTerminalValue + firstElement.cashEquivalents + otherAdjustment + firstElement.surplusAssets) : (firstElement.sumOfCashFlows + firstElement.pvTerminalValue + firstElement.cashEquivalents - firstElement.debtOnDate + firstElement.surplusAssets + otherAdjustment);
     firstElement.valuePerShare = (firstElement.equityValue*multiplier)/inputs.outstandingShares;
 
-    const {isStubRequired, totalDaysDifferenceStubAdjustment, provisionalDate, worksheet2} = await this.fetchStubAdjustment(inputs);
+    const {isStubRequired, totalDaysDifferenceStubAdjustment, provisionalDate} = await this.fetchStubAdjustment(inputs, balanceSheetData);
     if (isStubRequired && totalDaysDifferenceStubAdjustment > 1) { //based on the above conditions, calculating stub
-      const costOfEquity = await this.computeCostOfEquity(inputs, worksheet2);
+      const costOfEquity = await this.computeCostOfEquity(inputs, balanceSheetData);
       let stubFactor = (1 + totalDaysDifferenceStubAdjustment/365) ** (costOfEquity/100)-1;
       let equityValueToAdj = stubFactor * firstElement.equityValue;
       
@@ -1322,7 +1380,8 @@ export class FCFEAndFCFFService {
    let dcfValuationDto = new PostDcfValuationDto();
    dcfValuationDto.model = inputs.model.includes('FCFE') ? MODEL[0] : MODEL[1];
    dcfValuationDto.valuationData = transformValuation.transposedResult;
-   dcfValuationDto.valuation = isStubRequired? firstElement.equityValueNew : firstElement.equityValue;
+  //  dcfValuationDto.valuation = isStubRequired? firstElement.equityValueNew : firstElement.equityValue;
+   dcfValuationDto.valuation = firstElement.valuePerShare;
    dcfValuationDto.terminalYearWorking = terminalYearWorking;
    dcfValuationDto.columnHeader = transformValuation.columnHeader;
    dcfValuationDto.provisionalDate = provisionalDate;
@@ -1347,27 +1406,28 @@ export class FCFEAndFCFFService {
      } 
   }
 
-  async fetchStubAdjustment(inputs){
-    const valuationFileToProcess = inputs.isExcelModified === true ? inputs.modifiedExcelSheetId : inputs.excelSheetId;
+  async fetchStubAdjustment(inputs, balanceSheetData){
+    // const valuationFileToProcess = inputs.isExcelModified === true ? inputs.modifiedExcelSheetId : inputs.excelSheetId;
 
-    let workbook;
-    try {
-      workbook = XLSX.readFile(`./uploads/${valuationFileToProcess}`);
-    } catch (error) {
-      this.customLogger.log({
-        message: `excelSheetId: ${valuationFileToProcess} not available`,
-        userId: inputs.userId,
-      });
-      return {
-        result: null,
-        msg: `excelSheetId: ${valuationFileToProcess} not available`,
-      };
-    }
+    // let workbook;
+    // try {
+    //   workbook = XLSX.readFile(`./uploads/${valuationFileToProcess}`);
+    // } catch (error) {
+    //   this.customLogger.log({
+    //     message: `excelSheetId: ${valuationFileToProcess} not available`,
+    //     userId: inputs.userId,
+    //   });
+    //   return {
+    //     result: null,
+    //     msg: `excelSheetId: ${valuationFileToProcess} not available`,
+    //   };
+    // }
 
-    const worksheet1 = workbook.Sheets['P&L'];
-    const worksheet2 = workbook.Sheets['BS'];
+    // const worksheet1 = workbook.Sheets['P&L'];
+    // const worksheet2 = workbook.Sheets['BS'];
 
-    let provisionalDates = worksheet1['B1'].v || worksheet2['B1'].v;
+    // let provisionalDates = worksheet1['B1'].v || worksheet2['B1'].v;
+    let provisionalDates = getDateKey(balanceSheetData[0])
 
     let  provDtRef = parseDate(provisionalDates.trim());
 
@@ -1380,7 +1440,7 @@ export class FCFEAndFCFFService {
     if(isStubRequired){
       totalDaysDifferenceStubAdjustment = await this.subtractProvisionalDateByValuationDate(provDtRef, decodeValuationDate);
     }
-    return { isStubRequired, totalDaysDifferenceStubAdjustment, provisionalDate: new Date(provDtRef), worksheet2 };
+    return { isStubRequired, totalDaysDifferenceStubAdjustment, provisionalDate: new Date(provDtRef) };
   }
   //Get DiscountingFactor based on Industry based Calculations.
   // async getDiscountingFactor(
@@ -1439,4 +1499,31 @@ export class FCFEAndFCFFService {
   //     msg: 'discountingFactor get Successfully.',
   //   };
   // }
+  async getSheetData(processId, specificSheetData?){
+    try{
+      const loadExcelArchive:any = await this.excelArchiveService.fetchExcelByProcessStateId(processId);
+      if(specificSheetData){
+        return {[EXCEL_CONVENTION[specificSheetData].EAkey]: loadExcelArchive[EXCEL_CONVENTION[specificSheetData].EAkey]}
+      }
+      if(loadExcelArchive?.balanceSheetRowCount && loadExcelArchive?.profitLossSheetRowCount){
+        const balanceSheetData = loadExcelArchive.balanceSheetdata;
+        const profitLossSheetData = loadExcelArchive.profitLossSheetdata;
+        const assessmentSheetData = loadExcelArchive.assessmentSheetData;
+        return {balanceSheetData, profitLossSheetData, assessmentSheetData};
+      }
+      return null;
+    }
+    catch(error){
+      throw error;
+    }
+  }
+
+  async serializeArrayObject(array){
+    let excelArchive = {};
+    for await (const indArchive of array){
+      const {lineEntry, 'Sr no.': srNo, ...rest} = indArchive; 
+      excelArchive[indArchive.lineEntry.particulars] = rest;
+    }
+    return excelArchive;
+  }
 }

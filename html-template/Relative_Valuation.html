@@ -8,7 +8,7 @@
     <style type="text/css">
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            /* background-color: #f0f0f0; */
             margin-top: 6%;
             padding: 0;
         }
@@ -17,7 +17,7 @@
             margin: 0 auto;
             max-width: 800px;
             padding: 20px;
-            background-color: #ffffff;
+            background-color: transparent;
             /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
         }
 
@@ -30,7 +30,7 @@
         .column {
             width: 45%; /* Adjust the width as needed */
             padding: 10px;
-            background-color: #f9f9f9;
+            /* background-color: #f9f9f9; */
             border: 1px solid #ddd;
             border-radius: 5px;
             margin-bottom: 10px;
@@ -72,7 +72,7 @@
         }
 
         th {
-            background-color: #333;
+            background-color: #001F5F;
             color: #fff;
         }
 
@@ -128,18 +128,18 @@
     <table>
         <thead>
           <tr style="font-size: 13px;">
-            <th style="color: #5a5a5a !important">Company</th>
+            <th style="color: #fff !important">Company</th>
             {{#if (containsPeSelection)}}
-            <th style="color: #5a5a5a !important">P/E <span>(x)</span></th>
+            <th style="color: #fff !important">P/E <span>(x)</span></th>
             {{/if}}
             {{#if (containsPbSelection)}}
-            <th style="color: #5a5a5a !important">P/B <span>(x)</span></th>
+            <th style="color: #fff !important">P/B <span>(x)</span></th>
             {{/if}}
             {{#if (containsPsSelection)}}
-            <th style="color: #5a5a5a !important">P/S <span>(x)</span></th>
+            <th style="color: #fff !important">P/S <span>(x)</span></th>
             {{/if}}
             {{#if (containsEvbitdaSelection)}}
-            <th style="color: #5a5a5a !important">EV/EBITDA <span>(x)</span></th>
+            <th style="color: #fff !important">EV/EBITDA <span>(x)</span></th>
             {{/if}}
           </tr>
         </thead>
@@ -187,33 +187,39 @@
     <div style="page-break-before: always;margin-top:6.5%" class="container">
         <table cellspacing="0">
             <tr style="font-size: 13px;">
-                <th  colspan="2" style="border-right: none;text-align: center;color: #3d3d3d !important">
-                  Valuation of <span style="font-size: 13px;font-weight: 600;text-transform: uppercase;color: #b8b8b8 !important;">{{companyName}}</span> 
+                <th  colspan="2" style="border-right: none;text-align: center;">
+                  Valuation of <span style="font-size: 13px;font-weight: 600;text-transform: uppercase;">{{companyName}}</span> 
                 </th>
-                {{#if (checkPreferenceRatio)}}
-                <th colspan="2" style="border-left: none;text-align: right !important;color: #3d3d3d !important">
-                  Amount in INR {{reportingUnit}}
-                </th>
+                {{#if (ccmVPSMetricCheck 'average')}}
+                    <th colspan="2" style="border-left: none;text-align: right !important;">
+                        Amount in INR {{reportingUnit}}
+                    </th>
                 {{else}}
-                <th colspan="1" style="border-left: none;text-align: right !important;color: #3d3d3d !important">
-                    Amount in INR {{reportingUnit}}
-                  </th>
+                    <th colspan="1" style="border-left: none;text-align: right !important;">
+                        Amount in INR {{reportingUnit}}
+                    </th>
                 {{/if}}
               </tr>
             <tr style="font-size: 13px;">
-                <th style="color: #3d3d3d !important">Sr.No</th>
-                <th style="color: #3d3d3d !important">Particulars</th>
-                <th style="color: #3d3d3d !important">As on {{strdate}}</th>
-                {{#if (checkPreferenceRatio)}}
-                <th style="color: #3d3d3d !important">As on {{strdate}}</th>
+                <th style="">Sr.No</th>
+                <th style="">Particulars</th>
+                {{#if (ccmVPSMetricCheck 'average')}}
+                    <th style="">As on {{strdate}}</th>
+                {{else}}
+                    {{#if (checkPreferenceRatio)}}
+                    <th style="">As on {{strdate}}</th>
+                    {{/if}}
                 {{/if}}
             </tr>
             {{#if (checkPreferenceRatio)}}
             <tr style="font-size: 13px;">
                 <td></td>
                 <td></td>
+                {{#if (ccmVPSMetricCheck 'average')}}
                 <td>Average</td>
+                {{else}}
                 <td>Median</td>
+                {{/if}}
             </tr>
             {{/if}}
             {{#each (relativeVal data)}}
@@ -221,9 +227,12 @@
                 <tr style="font-weight: bold !important;font-size: 13px;">
                     <td>{{srNo}}</td>
                     <td>{{particular}}</td>
-                    <td>{{avg}}</td>
-                    {{#if (checkPreferenceRatio)}}
-                    <td>{{med}}</td>
+                    {{#if (ccmVPSMetricCheck 'average')}}
+                        <td>{{avg}}</td>
+                    {{else}}
+                        {{#if (checkPreferenceRatio)}}
+                        <td>{{med}}</td>
+                        {{/if}}
                     {{/if}}
                 </tr>
             {{else}}
@@ -231,9 +240,12 @@
                     <tr style="font-weight: bold !important;font-size: 13px;">
                         <td>{{srNo}}</td>
                         <td>{{particular}}</td>
-                        <td>{{avg}}</td>
-                        {{#if (checkPreferenceRatio)}}
-                        <td>{{med}}</td>
+                        {{#if (ccmVPSMetricCheck 'average')}}
+                            <td>{{avg}}</td>
+                        {{else}}
+                            {{#if (checkPreferenceRatio)}}
+                            <td>{{med}}</td>
+                            {{/if}}
                         {{/if}}
                     </tr>
                 {{else}}
@@ -242,18 +254,24 @@
                         <tr style="height: 25px;font-size: 13px;">
                             <td>{{srNo}}</td>
                             <td>{{particular}}</td>
-                            <td>{{avg}}</td>
-                            {{#if (checkPreferenceRatio)}}
-                            <td>{{med}}</td>
+                            {{#if (ccmVPSMetricCheck 'average')}}
+                                <td>{{avg}}</td>
+                            {{else}}
+                                {{#if (checkPreferenceRatio)}}
+                                <td>{{med}}</td>
+                                {{/if}}
                             {{/if}}
                         </tr>
                     {{else}}
                         <tr style="font-size: 13px;">
                             <td>{{srNo}}</td>
                             <td>{{particular}}</td>
-                            <td>{{avg}}</td>
-                            {{#if (checkPreferenceRatio)}}
-                            <td>{{med}}</td>
+                            {{#if (ccmVPSMetricCheck 'average')}}
+                                <td>{{avg}}</td>
+                            {{else}}
+                                {{#if (checkPreferenceRatio)}}
+                                <td>{{med}}</td>
+                                {{/if}}
                             {{/if}}
                         </tr>
                     {{/if}}

@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ProcessStatusManagerService } from './process-status-manager.service';
+import { ProcessStatusManagerService } from './service/process-status-manager.service';
 import { CustomLogger } from 'src/loggerService/logger.service';
-import { ProcessStatusManagerController } from './process-status-manager.controller';
+import { ProcessStatusManagerController } from './controller/process-status-manager.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ProcessManagerSchema } from './schema/process-status-manager.schema';
 import { AuthenticationService } from 'src/authentication/authentication.service';
@@ -12,13 +12,20 @@ import { utilsService } from 'src/utils/utils.service';
 import { ValuationSchema } from 'src/valuationProcess/schema/valuation.schema';
 import { DataCheckListSchema } from 'src/utils/schema/dataCheckList.schema';
 import { MandateSchema } from 'src/utils/schema/mandate.schema';
+import { ValuationsService } from 'src/valuationProcess/valuationProcess.service';
+import { FieldValidationSchema } from './schema/field-validation.shema';
+import { FieldValidationService } from './service/field-validation.service';
+import { FieldValidationController } from './controller/field-validation.controller';
 require('dotenv').config();
 
 @Module({
-  providers: [ProcessStatusManagerService,CustomLogger,AuthenticationService,utilsService],
-  controllers: [ProcessStatusManagerController],
+  providers: [ProcessStatusManagerService,CustomLogger,AuthenticationService,utilsService, ValuationsService, FieldValidationService],
+  controllers: [ProcessStatusManagerController, FieldValidationController],
   imports:[
-    MongooseModule.forFeature([{ name: 'processManager', schema: ProcessManagerSchema }]),
+    MongooseModule.forFeature([
+      { name: 'processManager', schema: ProcessManagerSchema },
+      { name: 'fieldValidation', schema: FieldValidationSchema },
+    ]),
     MongooseModule.forFeature([
       { name: 'valuation', schema: ValuationSchema },
       { name: 'dataChecklist', schema: DataCheckListSchema },

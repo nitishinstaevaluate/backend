@@ -47,8 +47,12 @@ export class UploadController {
   // @UseGuards(KeyCloakAuthGuard)
   @Post()
   @UseInterceptors(FileInterceptor('file', { storage }))
-  async uploadFile(@UploadedFile() formData) {
-    return await this.excelSheetService.pushInitialFinancialSheet(formData);
+  async uploadFile(
+    @UploadedFile() formData,  
+    @Body('processId') processId: string,
+    @Body('modelName') modelName: string, 
+    @Req() request) {
+      return  await this.excelSheetService.uploadExcelProcess(formData, processId, modelName, request);
   }
 
   // @UseGuards(KeyCloakAuthGuard)
@@ -66,31 +70,29 @@ export class UploadController {
   }
 
   @UseGuards(KeyCloakAuthGuard)
-  @Get('sheet/:fileName/:sheetName')
+  @Get('sheet/:fileName/:sheetName/:processStateId')
   getSheetData(
     @Param('fileName') fileName: string,
     @Param('sheetName') sheetName: string,
-  ): Observable<any> {
-    return from(this.excelSheetService.getSheetData(fileName, sheetName)).pipe(
+    @Param('processStateId') processStateId: string,
+    @Req() request
+  ) :Observable<any> {
+     return from(this.excelSheetService.getSheetData(fileName, sheetName, request, processStateId))
+    .pipe(
       catchError((error) => {
-        return throwError(error);
+        return throwError (error);
       })
     );
   }
 
   // @UseGuards(KeyCloakAuthGuard)
-  @Get('export-valuation/:reportId/:model/:specificity/:processId/:terminalType/:type')
+  @Post('export-valuation')
   async generatePdf(
-    @Param('reportId') reportId : string,
-    @Param('model') model : string = null,
-    @Param('specificity') specificity : boolean = false, 
-    @Param('processId') processId : string, 
-    @Param('terminalType') terminalType : string, 
-    @Param('type') formatType : string,
+    @Body() payload:any,
     @Res() res,
     @Req() request,
   ) {
-    return await this.excelSheetService.generateValuation(reportId,model,specificity,res, processId, terminalType, formatType, request);
+    return await this.excelSheetService.generateValuation(payload, res, request);
   }
 
   // @UseGuards(KeyCloakAuthGuard)
@@ -107,7 +109,26 @@ export class UploadController {
 
   @UseGuards(KeyCloakAuthGuard)
   @Post('modifyExcel')
-  async modifyExcel(@Body() excelData){
-    return await this.excelSheetService.modifyExcelSheet(excelData);
+  async modifyExcel(@Body() excelData, @Req() request){
+    return await this.excelSheetService.modifyExcelSheet(excelData, request);
+  }
+
+  @UseGuards(KeyCloakAuthGuard)
+  @Post('download-excel-template')
+  async fetchExcelTemplate(
+    @Body() templateData:any,
+    @Res() response
+  ){
+    return await this.excelSheetService.downloadTemplate(templateData, response)
+  }
+
+  @UseGuards(KeyCloakAuthGuard)
+  @Post('convert-excel-to-json')
+  async insertExcelJSON(
+    @Body() templateData:any,
+    @Req() request
+  ){
+    const { modelName, uploadedFileData, processStateId} = templateData;
+    return await this.excelSheetService.loadExcelJSONintoDB(modelName, uploadedFileData, request, processStateId);
   }
 }

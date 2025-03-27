@@ -77,6 +77,9 @@ export class CiqPriceEquityDto {
     @IsNotEmpty({ message: 'CompanyId cannot be empty eg.874487' })
     @IsNumber({}, { message: 'CompanyId cannot be empty eg.874487' })
     companyId: number;
+
+    @IsNumber({}, { message: 'exchangeId should be number eg.161' })
+    exchangeId: number;
   }
 
   export class ciqFetchPriceEquityDto {

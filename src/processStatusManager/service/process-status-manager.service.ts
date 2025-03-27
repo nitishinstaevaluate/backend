@@ -1,5 +1,5 @@
-import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
-import { ProcessManagerDocument } from './schema/process-status-manager.schema';
+import { BadGatewayException, ForbiddenException, HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
+import { ProcessManagerDocument } from '../schema/process-status-manager.schema';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, isValidObjectId } from 'mongoose';
 import { isNotEmpty } from 'class-validator';
@@ -7,6 +7,11 @@ import { CustomLogger } from 'src/loggerService/logger.service';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import { utilsService } from 'src/utils/utils.service';
 import { KeyCloakAuthGuard } from 'src/middleware/key-cloak-auth-guard';
+import { axiosInstance, axiosRejectUnauthorisedAgent } from 'src/middleware/axiosConfig';
+import { CLONE_BETA_WORKING, CONVERT_EXCEL_TO_JSON, FETCH_BETA_WORKING } from 'src/library/interfaces/api-endpoints.local';
+import { BETA_TYPE, MODEL, XL_SHEET_ENUM } from 'src/constants/constants';
+import { ValuationsService } from 'src/valuationProcess/valuationProcess.service';
+import { FieldValidationService } from './field-validation.service';
 
 @Injectable()
 export class ProcessStatusManagerService {
@@ -14,23 +19,27 @@ export class ProcessStatusManagerService {
   private readonly processModel: Model<ProcessManagerDocument>,
     private logger: CustomLogger,
     private readonly authenticationService: AuthenticationService,
-    private readonly utilsService: utilsService) { }
+    private readonly utilsService: utilsService,
+    private readonly valuationService: ValuationsService,
+    private readonly fieldValidationService: FieldValidationService
+  ) { }
 
   async upsertProcess(req, process, processId) {
     try {
       let existingRecord, alreadyExistingRecord;
 
       const { step, uniqueLinkId, ...rest  } = process;
-
       if(uniqueLinkId){
       const record = await this.processModel.findOne({ uniqueLinkId: uniqueLinkId });
 
-      if(record)
-        return {
-          processId:record._id,
-          status:true,
-          msg:"record already exist"
-        }
+      if(record){
+      return {
+        processId:record._id,
+        data: record,
+        status:true,
+        msg:"record already exist"
+      }
+      }
         const maxProcessIdentifierId = await this.utilsService.getMaxObId();
 
         const KCGuard:any = new KeyCloakAuthGuard();
@@ -46,11 +55,13 @@ export class ProcessStatusManagerService {
             step: parseInt(step) + 1,
             processIdentifierId: maxProcessIdentifierId + 1,
             userId: authoriseUser.userId,
+            isLegacyTemplate:false,
             uniqueLinkId
           }).save();
 
         return {
           processId: newRecord.id,
+          data: newRecord,
           status: true,
           msg: 'process state created',
         }
@@ -162,6 +173,7 @@ export class ProcessStatusManagerService {
 
           return {
             processId: existingRecord.id,
+            data: existingRecord,
             status: true,
             msg: 'Process state updated',
           };
@@ -185,6 +197,7 @@ export class ProcessStatusManagerService {
           
           return {
               processId: existingRecord.id,
+              data: existingRecord,
               status: true,
               msg: 'process state updated',
           };
@@ -204,6 +217,7 @@ export class ProcessStatusManagerService {
 
           return {
             processId: existingRecord.id,
+            data: existingRecord,
             status: true,
             msg: 'process state updated',
           };
@@ -223,11 +237,13 @@ export class ProcessStatusManagerService {
             ...rest,
             step: parseInt(step) + 1,
             processIdentifierId: maxProcessIdentifierId + 1,
-            userId: authoriseUser.userId
+            userId: authoriseUser.userId,
+            isLegacyTemplate:false,
           }).save();
 
         return {
           processId: newRecord.id,
+          data: newRecord,
           status: true,
           msg: 'process state created',
         }
@@ -341,7 +357,8 @@ export class ProcessStatusManagerService {
       const processStage = await this.processModel.findById({ _id : processStateId}).select(`processIdentifierId firstStageInput`).exec();
       return {
         isExcelModifiedStatus:processStage.firstStageInput?.isExcelModified,
-        excelSheetId:processStage.firstStageInput?.modifiedExcelSheetId || processStage.firstStageInput?.excelSheetId,
+        excelSheetId:processStage.firstStageInput?.isExcelModified ? processStage.firstStageInput?.modifiedExcelSheetId : processStage.firstStageInput?.excelSheetId,
+        exportExcelId:processStage.firstStageInput?.exportExcelId || '',
         status:true,
         processIdentifierId:processStage.processIdentifierId,
         msg:'excel status retrieve success'
@@ -490,6 +507,107 @@ export class ProcessStatusManagerService {
         },
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
+    }
+  }
+
+
+  async createClone(payload, request) {
+    try {
+      const leadClone = await this.fetchAndValidateProcess(payload._id);
+      const { _id, createdOn, modifiedOn, ...rest } = leadClone.toObject();
+  
+      const obId = await this.utilsService.getMaxObId();
+      const updatedProcess = await new this.processModel({ ...rest, processIdentifierId: obId + 1 }).save();
+
+      const processDetails = await this.getProcessIdentifierId({obId:_id});
+      
+      await this.upsertBetaWorking(request, this.constructBetaPayload(processDetails?.processIdentifierId, updatedProcess?.processIdentifierId));
+
+      const modelArray = payload.firstStageInput.model;
+      const isDCF = modelArray.includes(MODEL[0]) || modelArray.includes(MODEL[1]) || modelArray.includes(MODEL[3]);;
+      const isMarketApproach = modelArray.includes(MODEL[2]) || modelArray.includes(MODEL[4]);
+  
+      if (isDCF || isMarketApproach) {
+        await this.handleExcelConversion(payload, updatedProcess._id, request, isDCF);
+      }
+  
+      return { status: true };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  constructBetaPayload(oldPID, newPID){
+    return { oldPID, newPID };
+  }
+
+  async fetchAndValidateProcess(id) {
+    const leadClone = await this.processModel.findById(id).exec();
+    if (!leadClone) throw new NotFoundException('Item not found').getResponse();
+    return leadClone;
+  }
+
+  async handleExcelConversion(payload, processStateId, request, isDCF) {
+    const excelSheetId = payload.firstStageInput.isExcelModified 
+      ? payload.firstStageInput.modifiedExcelSheetId 
+      : payload.firstStageInput.excelSheetId;
+  
+    const templatePayload = {
+      modelName: isDCF ? XL_SHEET_ENUM[0] : XL_SHEET_ENUM[2],
+      uploadedFileData: { excelSheetId },
+      processStateId,
+    };
+  
+    const headers:any = await this.getAuthHeaders(request);
+    if (!headers.Authorization) throw new ForbiddenException('Token not found').getResponse();
+  
+    await axiosInstance.post(CONVERT_EXCEL_TO_JSON, templatePayload, {
+      httpsAgent: axiosRejectUnauthorisedAgent,
+      headers,
+    });
+  }
+
+  async getAuthHeaders(request) {
+    const bearerToken = await this.authenticationService.extractBearer(request);
+    if (!bearerToken.status) return bearerToken;
+  
+    return {
+      Authorization: `${bearerToken.token}`,
+      'Content-Type': 'application/json',
+    };
+  }
+
+  async upsertBetaWorking(request, payload){
+    try{
+      if(payload.betaType === BETA_TYPE[2]){
+        return;
+      }
+      const bearerToken = await this.authenticationService.extractBearer(request);
+
+      if(!bearerToken.status)
+        return bearerToken;
+
+      const headers = { 
+        'Authorization':`${bearerToken.token}`,
+        'Content-Type': 'application/json'
+      }
+
+      return await axiosInstance.post(`${CLONE_BETA_WORKING}`, payload, { httpsAgent: axiosRejectUnauthorisedAgent, headers });
+    }
+    catch(error){
+      throw error;
+    }
+  }
+
+  async fetchValuationUsingPID(id){
+    try{
+      const fourthStateDetails:any = await this.processModel.findOne({_id: id}).select('fourthStageInput').exec();
+      const valuationId = fourthStateDetails.fourthStageInput?.appData?.reportId;
+      if(!valuationId) return false;
+      return this.valuationService.getValuationById(valuationId);
+    }
+    catch(error){
+      throw error;
     }
   }
 }

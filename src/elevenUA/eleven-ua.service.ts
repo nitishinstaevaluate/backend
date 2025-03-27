@@ -1,23 +1,25 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ElevenUaDocument } from './schema/eleven-ua.schema';
 import { ExcelSheetService } from 'src/excelFileServices/uploadExcel.service';
 import * as xlsx from 'xlsx';
-import { convertToNumberOrZero, getCellValue } from 'src/excelFileServices/common.methods';
-import { columnsList, sheet4_ruleElevenUaObj } from 'src/excelFileServices/excelSheetConfig';
+import { convertToNumberOrZero, getCellValue, isObjectEmpty } from 'src/excelFileServices/common.methods';
+import { columnsList, RULE_ELEVEN_UA_RAW_LINE_ITEMS, sheet4_ruleElevenUaObj } from 'src/excelFileServices/excelSheetConfig';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import { plainToClass } from 'class-transformer';
 import { ElevenUaDTO, FetchElevenUaDto } from './dto/eleven-ua.dto';
 import { thirdpartyApiAggregateService } from 'src/library/thirdparty-api/thirdparty-api-aggregate.service';
 import { KeyCloakAuthGuard } from 'src/middleware/key-cloak-auth-guard';
 import { convertToRomanNumeral, formatPositiveAndNegativeValues } from 'src/report/report-common-functions';
+import { ExcelArchiveService } from 'src/excel-archive/service/excel-archive.service';
 
 @Injectable()
 export class ElevenUaService {
     constructor(@InjectModel('ruleelevenua') private readonly ruleelevenuaModel: Model<ElevenUaDocument>,
     private readonly thirdpartyApiAggregate: thirdpartyApiAggregateService,
-    private readonly authenticationService:AuthenticationService){}
+    private readonly authenticationService:AuthenticationService,
+    private readonly excelArchiveService: ExcelArchiveService){}
 
     async upsertProcess(req,payload,id){
         try{
@@ -26,10 +28,21 @@ export class ElevenUaService {
                     msg:'Incorrect Payload',
                     status:false,
                 }
-            
-            const excelSheetId = payload.isExcelModified ? payload.modifiedExcelSheetId : payload.excelSheetId;
 
-            const filePath:any = await this.thirdpartyApiAggregate.fetchFinancialSheetFromS3(excelSheetId);
+            const processId = payload?.processStateId;
+
+            const excelArchive: any = await this.excelArchiveService.fetchExcelByProcessStateId(processId);
+            const ruleElevenUaRowCount = excelArchive?.rule11UaSheetRowCount || 0;
+
+            let ruleElevenUaArchive = {},keysToProcess = [];
+            if(ruleElevenUaRowCount){
+                const ruleElevenUaData = excelArchive?.rule11UaSheetdata;
+                for await (const indArchive of ruleElevenUaData){
+                    const {lineEntry,  ...rest} = indArchive; 
+                    ruleElevenUaArchive[indArchive.lineEntry.particulars] = rest;
+                }
+                keysToProcess = Object.keys(ruleElevenUaData[0]).filter(ruleKey=>ruleKey === 'Amount ')
+            }
 
             const KCGuard:any = new KeyCloakAuthGuard();
             const authorizeUser = await KCGuard.fetchAuthUser(req).toPromise();
@@ -37,26 +50,28 @@ export class ElevenUaService {
             if(!authorizeUser.status)
                 return authorizeUser
 
-            if(!filePath)
-                return {
-                    msg:"Excel Sheet not found",
-                    error:filePath,
+            if(isObjectEmpty(ruleElevenUaArchive))
+                throw new  NotFoundException({
+                    msg:"Rule Eleven Ua archive object is empty, please check data in DB",
                     status:false
-                }
-
-                const workbookXLSX = xlsx.readFile(filePath);
-                const ruleElevenUaSheet = workbookXLSX.Sheets['Rule 11 UA'];
-
-                // calculate book value of all assets
-                const totalAssets = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.totalAssetsRow}`));
-                const immovableProperty = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.immovablePropertyRow}`));
-                const jewellery = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.jewelleryRow}`));
-                const artisticWork = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.artisticWorkRow}`));
-                const sharesAndSecurities = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.sharesAndSecuritiesRow}`));
-                const currentInvestmentAndSecurities = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.currentInvestmentSharesAndSecuritesRow}`));
-                const currentOtherInvestments = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.currentOtherInvestments}`));
-                const nonCurrentInvestmentAndSecurities = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.nonCurrentInvestmenInSharesAndSecuritesRow}`));
-                const nonCurrentOtherInvestments = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.nonCurrentOtherInvestments}`));
+                })
+                
+                
+                const amountKey = keysToProcess[0];
+                /**
+                 * keysToProcess[0] contains Amount Key as on index 0
+                 * 
+                 * Calculate Book value of all assets
+                 */
+                const totalAssets = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.totalAsset.particulars][amountKey]);
+                const immovableProperty = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.nonCurrentAssetRow.innerNonCurrentAssetRow.immovableProperty.particulars][amountKey]);
+                const jewellery = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.nonCurrentAssetRow.innerNonCurrentAssetRow.jewellery.particulars][amountKey]);
+                const artisticWork = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.nonCurrentAssetRow.innerNonCurrentAssetRow.artisticWork.particulars][amountKey]);
+                const sharesAndSecurities = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.nonCurrentAssetRow.innerNonCurrentAssetRow.sharesAndSecurities.particulars][amountKey]);
+                const currentInvestmentAndSecurities = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.currentAssetRow.innerCrrntAsset.invsmntInShrsAndSecrities.particulars][amountKey]);
+                const currentOtherInvestments = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.currentAssetRow.innerCrrntAsset.othrInvstmnt.particulars][amountKey]);
+                const nonCurrentInvestmentAndSecurities = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.nonCurrentAssetRow.innerNonCurrentAssetRow.invstmntInShareAndSecurities.particulars][amountKey]);
+                const nonCurrentOtherInvestments = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.nonCurrentAssetRow.innerNonCurrentAssetRow.othrInvstmnt.particulars][amountKey]);
 
                 const bookValueOfAllAssets = (totalAssets - immovableProperty - jewellery - artisticWork - sharesAndSecurities - currentInvestmentAndSecurities - currentOtherInvestments - nonCurrentInvestmentAndSecurities - nonCurrentOtherInvestments).toFixed(2);
 
@@ -65,10 +80,10 @@ export class ElevenUaService {
                 * Issuance of shares - b20+b21+b37+b38
                 */
                 let totalIncomeTaxPaid;
-                const advanceTax = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.advanceTaxRow}`));
-                const incomeTaxRefund = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.incomeTaxRefundRow}`));
-                const advanceTaxPaid = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.advanceTaxPaidRow}`));
-                const tdsRecievable = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.tdsRecievablesRow}`));
+                const advanceTax = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.nonCurrentAssetRow.innerNonCurrentAssetRow.advnceTx.particulars][amountKey]);
+                const incomeTaxRefund = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.nonCurrentAssetRow.innerNonCurrentAssetRow.incmeTaxRefnd.particulars][amountKey]);
+                const advanceTaxPaid = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.currentAssetRow.innerCrrntAsset.advnceTxPaid.particulars][amountKey]);
+                const tdsRecievable = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.currentAssetRow.innerCrrntAsset.tdsRecvbles.particulars][amountKey]);
                 if(payload?.issuanceOfShares){
                     totalIncomeTaxPaid = (advanceTax + incomeTaxRefund + advanceTaxPaid + tdsRecievable).toFixed(2);
                 }
@@ -77,27 +92,28 @@ export class ElevenUaService {
                 }
             
                 // calculate unamortised amount of deffered expenditure b39 + b40 + b41+ b22
-                const preliminaryExpense = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.preliminaryExpenseRow}`));
-                const preOperativeExpense = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.preOperativeTaxRow}`));
-                const otherMiscllneousExpense = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.otherMiscllneousExpenseRow}`));
-                const deferredTaxAssets = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.defferedTaxRow}`));
+                const preliminaryExpense = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.currentAssetRow.innerCrrntAsset.prlmnryExpnse.particulars][amountKey]);
+                const preOperativeExpense = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.currentAssetRow.innerCrrntAsset.prOprtveExpnse.particulars][amountKey]);
+                const otherMiscllneousExpense = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.currentAssetRow.innerCrrntAsset.othrMisclneousExpnse.particulars][amountKey]);
+                const deferredTaxAssets = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.nonCurrentAssetRow.innerNonCurrentAssetRow.deffrdTxAsstNet.particulars][amountKey]);
 
                 const unamortisedAmountOfDeferredExpenditure = (preliminaryExpense + preOperativeExpense + otherMiscllneousExpense + deferredTaxAssets).toFixed(2);
 
                 // calculate book value of liabilities
-                const bookValueOfLiabilities = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.totalAssetsRow}`)).toFixed(2);
+                const bookValueOfLiabilities = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.assets.innerAsset.totalAsset.particulars][amountKey]).toFixed(2);
 
                 // calculate paid-up capital/share capital
-                const paidUpCapital = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.shareCapitalRow}`)).toFixed(2);
+                const paidUpCapital = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.equityAndLiabilities.innerEquityAndLiability.equityRow.innerEquityRow.shareCapital.particulars][amountKey]).toFixed(2);
 
                 // calculate amount set apart for payment of dividends
-                const paymentDividends = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.paymentDividendsRow}`)).toFixed(2);
+                const paymentDividends = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.equityAndLiabilities.innerEquityAndLiability.equityRow.innerEquityRow.amntSetAprtForPymntOfDvdnds.particulars][amountKey]).toFixed(2);
+
 
                 // calculate reserve and surplus
-                const reserveAndSurplus = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.reserveAndSurplusRow}`)).toFixed(2);
+                const reserveAndSurplus = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.equityAndLiabilities.innerEquityAndLiability.equityRow.innerEquityRow.rsrveAndSrplus.particulars][amountKey]).toFixed(2);
 
                 // calculate amount representing provision for taxation
-                const provisionForTaxation = convertToNumberOrZero(await getCellValue(ruleElevenUaSheet, `${columnsList[0]}${sheet4_ruleElevenUaObj.provisionForTaxationRow}`)).toFixed(2);
+                const provisionForTaxation = convertToNumberOrZero(ruleElevenUaArchive[RULE_ELEVEN_UA_RAW_LINE_ITEMS.equityAndLiabilities.innerEquityAndLiability.liabilitiesRow.nonCurrentLiabilitiesRow.innerNonCrrntLiabilitiesRow.prvsionForTxation.particulars][amountKey]).toFixed(2);
 
                 // calculate current-investment (shares and securities) and non-current-investment (shares and securities)
                 const totalInvestmentSharesAndSecurities = (currentInvestmentAndSecurities + nonCurrentInvestmentAndSecurities).toFixed(2);
@@ -151,11 +167,7 @@ export class ElevenUaService {
             }
         }
         catch(error){
-            return {
-                msg:"rule eleven Ua valuation failed",
-                error:error,
-                status:false
-            }
+            throw error;
         }
     }
 

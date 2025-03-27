@@ -108,4 +108,11 @@ export class CiqSpController {
   async fetchBetaWorking(@Param() processId: any) {
     return this.capitalIqAndSPService.getBetaWorking(processId);
   }
+
+  // https://localhost:3000/ciq-sp/clone-beta-working
+  @UseGuards(KeyCloakAuthGuard)
+  @Post('clone-beta-working')
+  async replicateBetaWorking(@Body() payload: any) {
+    return this.capitalIqAndSPService.cloneBetaWorking(payload);
+  }
 }

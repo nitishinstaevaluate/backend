@@ -19,7 +19,7 @@ import {
   calculateDaysFromDate,
   getRequestAuth,
 } from '../excelFileServices/common.methods';
-import {CapitalStruc} from '../excelFileServices/fcfeAndFCFF.method';
+// import {CapitalStruc} from '../excelFileServices/fcfeAndFCFF.method';
 import { utilsService } from 'src/utils/utils.service';
 import { CustomLogger } from 'src/loggerService/logger.service';
 import { MODEL } from 'src/constants/constants';
@@ -31,6 +31,8 @@ import { FCFEAndFCFFService } from './fcfeAndFCFF.service';
 import { RelativeValuationService } from './relativeValuation.service';
 import { SensitivityAnalysisService } from 'src/sensitivity-analysis/service/sensitivity-analysis.service';
 import { authenticationTokenService } from 'src/authentication/authentication-token.service';
+import { thirdpartyApiAggregateService } from 'src/library/thirdparty-api/thirdparty-api-aggregate.service';
+import { MarketPriceService } from './market-price.service';
 
 @UseGuards(KeyCloakAuthGuard)
 @Controller('valuationProcess')
@@ -42,7 +44,8 @@ export class ValuationProcessController {
     private customLogger: CustomLogger,
     private authService:AuthenticationService,
     private sensitivityAnalysisService: SensitivityAnalysisService,
-    private authenticationTokenService: authenticationTokenService
+    private authenticationTokenService: authenticationTokenService,
+    private thirdPartyService: thirdpartyApiAggregateService
   ) {}
 
   @Post()
@@ -181,8 +184,8 @@ let workbook=null;
       const valuationResponse =
         await this.valuationMethodsService.Relative_Valuation_Method(
           inputs,
-          worksheet1,
-          worksheet2,
+          // worksheet1,
+          // worksheet2,
         );
       if (valuationResponse.result === null) return valuationResponse.msg;
 
@@ -233,10 +236,13 @@ let workbook=null;
     try {
       workbook = XLSX.readFile(`./uploads/${valuationFileToProcess}`);
     } catch (error) {
-      this.customLogger.log({
-        message: `excelSheetId: ${valuationFileToProcess} not available`,
-        userId: inputs.userId,
-      });
+      await this.thirdPartyService.fetchFinancialSheetFromS3(valuationFileToProcess);
+      workbook = XLSX.readFile(`./uploads/${valuationFileToProcess}`);
+      // this.customLogger.log({
+      //   message: `excelSheetId: ${valuationFileToProcess} not available`,
+      //   userId: inputs.userId,
+      // });
+      if(!workbook)
       return {
         result: null,
         msg: `excelSheetId: ${valuationFileToProcess} not available`,
@@ -300,7 +306,7 @@ let workbook=null;
                     
               case MODEL[2]:
                 const relativeValuationResponse = await this.valuationMethodsService
-                .Relative_Valuation_Method(inputs, worksheet1, worksheet2)
+                .Relative_Valuation_Method(inputs)
                 valResult.push({
                   model: MODEL[2],
                   valuationData: relativeValuationResponse.result,
@@ -336,7 +342,7 @@ let workbook=null;
           break; 
             case MODEL[4]: 
             const comparableIndustries = await this.valuationMethodsService
-                .Relative_Valuation_Method(inputs, worksheet1, worksheet2)
+                .Relative_Valuation_Method(inputs)
                 valResult.push({
                   model: MODEL[4],
                   valuationData: comparableIndustries.result,
@@ -353,7 +359,7 @@ let workbook=null;
 
             case MODEL[5]: 
             const netAssetValueResponse = await this.valuationMethodsService
-            .Net_Asset_Value_method(inputs, worksheet1, worksheet2)
+            .Net_Asset_Value_method(inputs)
             valResult.push({
               model: MODEL[5],
               valuationData: netAssetValueResponse.result,
@@ -378,8 +384,20 @@ let workbook=null;
               const valuationDate = inputs?.valuationDate;
               const outstandingShares = inputs?.outstandingShares;
               const reportingUnit = inputs?.reportingUnit;
-              const marketPriceResponse = await this.valuationMethodsService.Market_Price_method(headers, companyId, valuationDate, outstandingShares, reportingUnit);
+              const processStateId = inputs?.processStateId;
+              const payload = {
+                companyId, 
+                valuationDateTimestamp:valuationDate, 
+                outstandingShares, 
+                reportingUnit,
+                isCmpnyNmeOrVltionDteReset:inputs?.validateFieldOptions?.isCmpnyNmeOrVltionDteReset,
+                processStateId
+              }
+              const marketPriceResponse = await this.valuationMethodsService.Market_Price_method(headers, payload);
 
+              inputs['validateFieldOptions'] = inputs['validateFieldOptions'] || {};
+              inputs['validateFieldOptions']['isCmpnyNmeOrVltionDteReset'] = false;
+              
               valResult.push({
                 model: MODEL[7],
                 valuationData: { 
@@ -389,7 +407,9 @@ let workbook=null;
                   vwapLastNinetyDays: marketPriceResponse.vwapLastNinetyDays,
                 },
                 equityValue: marketPriceResponse.equityValue,
-                valuation:marketPriceResponse.valuePerShare
+                // equityValueBSE: marketPriceResponse.equityValueBse,
+                valuation:marketPriceResponse.valuePerShare,
+                // valuationBSE:marketPriceResponse.valuePerShareBse
               });
               tableResult.push({
                 model: MODEL[7],
@@ -400,7 +420,7 @@ let workbook=null;
                   vwapLastNinetyDays: marketPriceResponse.vwapLastNinetyDays,
                 },
                 equityValue: marketPriceResponse.equityValue,
-                valuation:marketPriceResponse.valuePerShare
+                valuation:marketPriceResponse.valuePerShare,
               });
               models.push(modelValue);
             break;  
@@ -451,7 +471,8 @@ export class ValuationsController {
     private readonly utilsService: utilsService,
     private terminalWorkingService: terminalValueWorkingService,
     private readonly fcfeService: FCFEAndFCFFService,
-  private relativeValuationService: RelativeValuationService) {}
+    private relativeValuationService: RelativeValuationService,
+    private readonly marketPriceService: MarketPriceService) {}
 
   @UseGuards(KeyCloakAuthGuard)
   @Get('calculate-terminal-value')
@@ -480,6 +501,12 @@ export class ValuationsController {
   async recalculateCcmValuation(@Body() inputPayload:any,
   @Headers() headers: Headers){
     return await this.relativeValuationService.recalculateCcmValuation(inputPayload, headers);
+  }
+
+  @UseGuards(KeyCloakAuthGuard)
+  @Post('market-price-re-valuation')
+  async recalculateMarketPriceValuation(@Body() inputPayload:any, @Headers() headers: Headers){
+    return await this.marketPriceService.revaluationMarketPrice(headers, inputPayload);
   }
 
   @UseGuards(KeyCloakAuthGuard)

@@ -5,7 +5,7 @@
     <style>
          body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            /* background-color: #f0f0f0; */
             margin-top: 6%;
             padding: 0;
         }
@@ -14,7 +14,7 @@
             margin: 0 auto;
             max-width: 800px;
             padding: 20px;
-            background-color: #ffffff;
+            background-color: transparent;
             /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
             padding-top: 0px;
         }
@@ -28,7 +28,7 @@
         .column {
             width: 45%; /* Adjust the width as needed */
             padding: 10px;
-            background-color: #f9f9f9;
+            /* background-color: #f8f8f8; */
             border: 1px solid #ddd;
             border-radius: 5px;
             margin-bottom: 10px;
@@ -70,7 +70,7 @@
         }
 
         th {
-            background-color: #333;
+            background-color: #001F5F;
             color: #fff;
         }
 
@@ -140,7 +140,7 @@
             <table class="responsive-table">
                 <tr>
                     {{#each (fcfeColumnHeader data)}}
-                    <th style="text-transform: capitalize;font-weight: bold !important;color: #333;font-size: 12px;">{{headers}}</th>
+                    <th style="text-transform: capitalize;font-weight: bold !important;font-size: 12px;">{{headers}}</th>
                     {{/each}}
                 </tr>
                 <tr>
@@ -313,13 +313,13 @@
             </table>
         </div>
     </div>
-        <div class="pdf-container" style="padding-top: 8%;page-break-before: always;">
+        <div class="pdf-container" style="padding-top: 3%;page-break-before: always;">
             <h4>Workings</h4>
             <!-- <table style="width: 100% !important;margin: auto;"> -->
-            <table class="responsive-table" style="width: 70%;margin: auto;">
+            <!-- <table class="responsive-table" style="width: 70%;margin: auto;">
             <tr>
-                <th style="text-transform: capitalize;font-weight: bold !important;color: #333;font-size: 12px;">Particulars</th>
-                <th style="text-transform: capitalize;font-weight: bold !important;color: #333;font-size: 12px;">Rate</th>
+                <th style="text-transform: capitalize;font-weight: bold !important;font-size: 12px;">Particulars</th>
+                <th style="text-transform: capitalize;font-weight: bold !important;font-size: 12px;">Rate</th>
             </tr>
             <tr>
                 
@@ -348,7 +348,202 @@
                 <td style="font-size: 12px !important;">Adjusted Cost of Equity</td>
                 <td style="font-size: 12px !important;">{{adjustedCostOfEquity}}%</td>
             </tr>
-        </table>
+        </table> -->
+
+        <table class="responsive-table" style="width: 90%;margin: auto;margin-bottom:2.5%">
+            <tr style="height: 14pt;">
+               <th style="text-transform: capitalize;font-weight: bold !important;font-size: 12px;">
+                   <p style="padding-left: 5pt;text-indent: 0pt;text-align: left;font-size: 13px !important;">
+                           Calculation of Cost Of Equity
+                    </p>
+               </th>
+               <th style="text-transform: capitalize;font-weight: bold !important;font-size: 12px;">
+               </th>
+            
+           </tr>
+           <tr>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  Risk Free Rate
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  {{riskFreeRate}}%
+                   </p>
+               </td>
+              
+           </tr>
+           <tr>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  Market Return
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  {{expMarketReturn}}%
+                   </p>
+               </td>
+              
+           </tr>
+           <tr>
+            <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  Beta
+                </p>
+            </td>
+            <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  {{beta}}
+                </p>
+            </td>
+           
+        </tr>
+           <tr>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;font-weight: bold;">  Cost Of Equity
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;font-weight: bold;">  {{costOfEquity}}%
+                   </p>
+               </td>
+              
+           </tr>
+           <tr>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  Add: Company Specific Risk Premium
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  {{companyRiskPremium}}%
+                   </p>
+               </td>
+              
+           </tr>
+           <tr>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;font-weight: bold;">  Adjusted Cost Of Equity
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;font-weight: bold;">  {{adjustedCostOfEquity}}%
+                   </p>
+               </td>
+           </tr>
+       </table>
+
+       <hr style="color: #cdcdcd;width: 90%;margin: auto;">
+
+        <table style="border-collapse:collapse;margin:auto;width: 90%;margin-top: 2.5%;margin-bottom: 2.5%;" cellspacing="0">
+            <tr style="height:14pt">
+                <th style="text-transform: capitalize;font-weight: bold !important;font-size: 12px;">
+                    <p style="padding-left: 5pt;text-indent: 0pt;text-align: left;font-size: 13px !important;">
+                        Calculation of Post Tax Cost Debt
+                        </p>
+                </th>
+                <th style="text-transform: capitalize;font-weight: bold !important;font-size: 12px;">
+                </th>
+           </tr>
+           <tr>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  Cost Of Debt
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  {{costOfDebt}}%
+                   </p>
+               </td>
+           </tr>
+           <tr>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  Less: Taxes @{{taxRate}}%
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  {{costOfDebtMultipliedTaxRate}}%
+                   </p>
+               </td>
+           </tr>
+           <tr>
+            <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;font-weight: bold;">  Post Tax Cost of Debt
+                </p>
+            </td>
+            <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;font-weight: bold;">  {{postCostOfDebt}}%
+                </p>
+            </td>
+        </tr>
+       </table>
+
+       <hr style="color: #cdcdcd;width: 90%;margin: auto;">
+
+        <table style="border-collapse:collapse;margin:auto;width: 90%;margin-top: 2.5%;" cellspacing="0">
+            <tr style="height:14pt">
+                <th style="text-transform: capitalize;font-weight: bold !important;font-size: 12px;">
+                    <p style="padding-left: 5pt;text-indent: 0pt;text-align: left;font-size: 13px !important;">
+                        Particulars
+                        </p>
+                </th>
+                <th style="text-transform: capitalize;font-weight: bold !important;font-size: 12px;">
+                    <p style="padding-left: 5pt;text-indent: 0pt;text-align: left;font-size: 13px !important;">
+                        Cost
+                    </p>
+                </th>
+                <th style="text-transform: capitalize;font-weight: bold !important;font-size: 12px;">
+                    <p style="padding-left: 5pt;text-indent: 0pt;text-align: left;font-size: 13px !important;">
+                        {{capitalStructureType}}
+                    </p>
+                </th>
+                <th style="text-transform: capitalize;font-weight: bold !important;font-size: 12px;">
+                    <p style="padding-left: 5pt;text-indent: 0pt;text-align: left;font-size: 13px !important;">
+                        Weighted Cost
+                    </p>
+                </th>
+           </tr>
+           <tr>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  Cost Of Equity
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;"> {{adjustedCostOfEquity}}%
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  {{equityOrDebt 'equity'}}%
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  {{calculateWeightedProportion 'equity'}}%
+                   </p>
+               </td>
+           </tr>
+           <tr>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  Cost Of Debt
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  {{postCostOfDebt}}%
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  {{equityOrDebt 'debt'}}%
+                   </p>
+               </td>
+               <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                   <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;">  {{calculateWeightedProportion 'debt'}}%
+                   </p>
+               </td>
+           </tr>
+           <tr>
+            <td colspan="3" style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;font-weight: bold;">  Weighted Average Cost Of Capital
+                </p>
+            </td>
+            <td  style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                <p class="s15" style="padding-left: 5pt;text-indent: 0pt;line-height: 12pt;text-align: left;font-size: 12px !important;font-weight: bold;">  {{wacc}}%
+                </p>
+            </td>
+        </tr>
+       </table>
         </div>
 </body>
 </html>

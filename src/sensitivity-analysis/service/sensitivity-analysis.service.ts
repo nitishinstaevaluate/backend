@@ -5,7 +5,7 @@ import { sensitivityAnalysisDocument } from '../schema/sensitivity-analysis.sche
 import { Model } from 'mongoose';
 import { ValuationsService } from 'src/valuationProcess/valuationProcess.service';
 import { MODEL } from 'src/constants/constants';
-import { ProcessStatusManagerService } from 'src/processStatusManager/process-status-manager.service';
+import { ProcessStatusManagerService } from 'src/processStatusManager/service/process-status-manager.service';
 import { REVALUATION_SA, VALUATION_PROCESS_V1 } from 'src/library/interfaces/api-endpoints.local';
 import { axiosInstance, axiosRejectUnauthorisedAgent } from 'src/middleware/axiosConfig';
 

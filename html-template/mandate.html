@@ -169,9 +169,16 @@
     {{else}}
     <p style="padding-top: 9pt;text-indent: 0pt;line-height: 160%;text-align: justify;">
         <span
-            class="p">The purpose of services required by {{companyName}} for the purpose of determining the fair value of
+            class="p">The purpose of services required by {{companyName}} 
         </span>
+
+        {{#if (isInternalAssessment)}}
+        <span>
+            is for the internal assessment purposes.
+        </span>
+        {{else}}
         <span class="s2">
+            for the purpose of determining the fair value of
             {{natureOfInstrument}}
         </span>
         <span class="p"> 
@@ -184,6 +191,7 @@
             in accordance with
         </span>
         <span class="s2">provisions of section {{sectionAndPurposeOfReport}}.</span>
+        {{/if}}
     </p>
     {{/if}}
     <p style="text-indent: 0pt;text-align: left;"><br /></p>
@@ -209,9 +217,9 @@
         (“Advice”) we provide under this Engagement Letter including the Valuation Report are for your use and you may
         disclose the same (or any portion or summary thereof) to any person at your complete discretion. Further, 
         {{#if (ifMB01)}}
-        We
+        we
         {{else}}
-        I
+        we
         {{/if}}
         shall not disclose the Advice and Valuation Report to any person.</p>
     <p style="padding-top: 7pt;text-indent: 0pt;line-height: 170%;text-align: justify;">We commit to deploying our utmost efforts to fulfill our obligations outlined in this Engagement Letter and deliver the 
@@ -395,7 +403,7 @@
             {{#if (ifMB01)}}
             We
             {{else}}
-            I 
+            We
             {{/if}}
             shall not be responsible for ensuring the truth, accuracy, completeness or fairness of any Communication.
         </p>

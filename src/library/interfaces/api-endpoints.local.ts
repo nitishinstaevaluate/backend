@@ -9,3 +9,5 @@ export const CIQ_ELASTIC_SEARCH_FINANCIAL_SEGMENT = 'https://localhost:3000/ciq-
 export const CIQ_COMPANY_MULTIPLES_MEAN_MEDIAN = 'https://localhost:3000/ciq-sp/calculate-sp-companies-mean-median';
 export const VALUATION_PROCESS_V1 = 'https://localhost:3000/valuationProcess/v1';
 export const REVALUATION_SA = 'https://localhost:3000/valuations/sa-re-valuation';
+export const CONVERT_EXCEL_TO_JSON = 'https://localhost:3000/upload/convert-excel-to-json';
+export const CLONE_BETA_WORKING = 'https://localhost:3000/ciq-sp/clone-beta-working';

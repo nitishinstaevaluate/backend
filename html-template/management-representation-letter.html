@@ -281,7 +281,7 @@
                             {{#each (profitAndLossExcelHeaders @root)}}
                             <td align="{{columnAlignment @index}}" style="width: auto !important; border-top-style: solid; border-top-width: 1pt; border-left-style: solid; border-left-width: 1pt; border-bottom-style: solid; border-bottom-width: 1pt; border-right-style: solid; border-right-width: 1pt">
                                     <p style="font-size: 11px !important; padding-left: 1%; color: rgb(60, 60, 60); font-weight: 400; padding-top: 1%; padding-bottom: 1%;padding-right: 2%;">
-                                        {{lookup ../this head}}
+                                        {{formatNumber (lookup ../this head)}}
                                     </p>
                                 </td>
                             {{/each}}
@@ -312,7 +312,7 @@
                         {{#each (balanceSheetExcelHeaders @root)}}
                             <td align="{{columnAlignment @index}}" style="width: auto !important; border-top-style: solid; border-top-width: 1pt; border-left-style: solid; border-left-width: 1pt; border-bottom-style: solid; border-bottom-width: 1pt; border-right-style: solid; border-right-width: 1pt">
                                 <p style="font-size: 11px !important; padding-left: 1%; color: rgb(60, 60, 60); font-weight: 400; padding-top: 1%; padding-bottom: 1%;padding-right: 2%;">
-                                    {{lookup ../this head}}
+                                    {{formatNumber (lookup ../this head)}}
                                 </p>
                             </td>
                         {{/each}}

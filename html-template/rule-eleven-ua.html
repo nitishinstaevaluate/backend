@@ -8,7 +8,7 @@
     <style type="text/css">
         body {
             font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+            /* background-color: #f0f0f0; */
             margin-top: 6%;
             padding: 0;
         }
@@ -17,7 +17,7 @@
             margin: 0 auto;
             max-width: 800px;
             padding: 20px;
-            background-color: #ffffff;
+            background-color: transparent;
             /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
             padding-top: 5px;
         }
@@ -31,7 +31,7 @@
         .column {
             width: 45%; /* Adjust the width as needed */
             padding: 10px;
-            background-color: #f9f9f9;
+            /* background-color: #f9f9f9; */
             border: 1px solid #ddd;
             border-radius: 5px;
             margin-bottom: 10px;
@@ -74,7 +74,7 @@
         }
 
         th {
-            background-color: #333;
+            background-color: #001F5F;
             color: #fff;
         }
 
@@ -131,26 +131,25 @@
         <table style="border-collapse:collapse;width: 100%;" cellspacing="0">
             <!-- <tr style="height:30pt">
                 <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    colspan="2" bgcolor="#BEBEBE">
+                    colspan="2" bgcolor="#001F5F">
                     <p class="s11" style="text-align: center;font-size: 13px;">Name of Company
                     </p>
                 </td>
                 <td style="width:425pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    colspan="4" bgcolor="#BEBEBE">
+                    colspan="4" bgcolor="#001F5F">
                     <p style="text-align: left;padding: 1%;font-size: 13px;font-weight: bold;"><span class="s12" >{{companyName}}</span></p>
                 </td>
             </tr> -->
             <tr style="height:30pt">
-                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    colspan="2" bgcolor="#BEBEBE">
+                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                    colspan="2" bgcolor="#001F5F">
                     <p class="s11"
                         style="text-align: center;font-size: 13px;">
                         Valuation Basis:</p>
                 </td>
-                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    colspan="4" bgcolor="#BEBEBE">
-                    <p
-                        style="text-align: justify;font-size: 13px;padding: 1%;">
+                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                    colspan="4" bgcolor="#001F5F">
+                    <p style="text-align: justify;font-size: 13px;padding: 1%;">
                         <span class="s12">
                             {{#if (financialBasis)}}
                             Audited Financials for the year
@@ -272,13 +271,13 @@
             </tr>
            
             <tr style="height:15pt">
-                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    colspan="5" bgcolor="#BEBEBE">
+                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                    colspan="5" bgcolor="#001F5F">
                     <p class="s11" style="padding-left: 180pt;padding-right: 173pt;text-indent: 0pt;text-align: center;font-size: 13px !important;font-weight: bold;">
                         Total (A)</p>
                 </td>
-                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    bgcolor="#BEBEBE">
+                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                    bgcolor="#001F5F">
                     <p style="padding-right: 4pt;text-indent: 0pt;text-align: right;margin-top: 5%;font-weight: bold;font-size: 13px !important;font-weight: bold;">{{totalA}}</p>
                 </td>
             </tr>
@@ -332,14 +331,14 @@
             </tr>
             {{/each}}
             <tr style="height:15pt">
-                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    colspan="5" bgcolor="#BEBEBE">
+                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                    colspan="5" bgcolor="#001F5F">
                     <p class="s11"
                         style="padding-left: 177pt;padding-right: 177pt;text-indent: 0pt;line-height: 13pt;text-align: center;font-size: 13px !important;font-weight: bold;">
                         Total (B)</p>
                 </td>
-                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    bgcolor="#BEBEBE">
+                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                    bgcolor="#001F5F">
                     <p class="s11" style="padding-right: 9pt;text-indent: 0pt;line-height: 13pt;text-align: right;font-size: 13px !important;font-weight: bold;">{{totalB}}</p>
                 </td>
             </tr>
@@ -391,14 +390,14 @@
                 </td>
             </tr>
             <tr style="height:15pt">
-                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    colspan="5" bgcolor="#BEBEBE">
+                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                    colspan="5" bgcolor="#001F5F">
                     <p class="s11"
                         style="padding-left: 177pt;padding-right: 177pt;text-indent: 0pt;line-height: 13pt;text-align: center;font-size: 13px;font-weight: bold;">
                         Total (C)</p>
                 </td>
-                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    bgcolor="#BEBEBE">
+                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                    bgcolor="#001F5F">
                     <p style="text-align: right;font-weight: bold;padding-right: 4pt;font-size: 13px !important;font-weight: bold;">{{totalC}}</p>
                 </td>
             </tr>
@@ -450,13 +449,13 @@
             </tr>
             
             <tr style="height:15pt">
-                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    colspan="5" bgcolor="#BEBEBE">
+                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                    colspan="5" bgcolor="#001F5F">
                     <p class="s11" style="padding-left: 177pt;padding-right: 177pt;text-indent: 0pt;text-align: center;font-size: 13px !important;font-weight: bold;">
                         Total (D)</p>
                 </td>
-                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    bgcolor="#BEBEBE">
+                <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                    bgcolor="#001F5F">
                     <p style="text-indent: 0pt;text-align: right;font-weight: bold;padding-right: 4pt;font-size: 13px !important;font-weight: bold;">{{totalD}}</p>
                 </td>
             </tr>
@@ -644,13 +643,13 @@
             </td>
         </tr>
         <tr style="height:15pt">
-            <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                colspan="5" bgcolor="#BEBEBE">
+            <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                colspan="5" bgcolor="#001F5F">
                 <p class="s11" style="padding-left: 177pt;padding-right: 177pt;text-indent: 0pt;text-align: center;font-size: 13px !important;font-weight: bold;">
                     Total (L)</p>
             </td>
-            <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                bgcolor="#BEBEBE">
+            <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                bgcolor="#001F5F">
                 <p style="text-indent: 0pt;text-align: right;font-weight: bold;padding-right: 4pt;font-size: 13px !important;font-weight: bold;">{{totalL}}</p>
             </td>
         </tr>
@@ -712,8 +711,8 @@
             </td>
         </tr>
         <tr style="height:15pt">
-            <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                colspan="5" bgcolor="#BEBEBE">
+            <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                colspan="5" bgcolor="#001F5F">
                 <p class="s11"
                     style="padding-left: 23pt;padding-right: 23pt;text-indent: 0pt;line-height: 13pt;text-align: center;font-size: 13px !important;font-weight: bold;">
                     {{#if (isTransferOfShares)}}
@@ -723,8 +722,8 @@
                     {{/if}}
                 </p>
             </td>
-            <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                colspan="1" bgcolor="#BEBEBE">
+            <td style="width:auto;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt;color: #fff;"
+                colspan="1" bgcolor="#001F5F">
                 <p class="s11" style="padding-right: 3pt;text-indent: 0pt;line-height: 13pt;text-align: right;font-size: 13px !important;font-weight: bold;">{{unquotedEquityShare}}</p>
             </td>
         </tr>

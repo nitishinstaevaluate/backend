@@ -63,11 +63,15 @@ import { convertToNumberOrZero } from "src/excelFileServices/common.methods"
 
     export async function calculateMean(data, maxLength){
         try{
-        let total = 0
-        for await (const items of data){
-            total += convertToNumberOrZero(items);
-        }
-        return total/maxLength;
+            let total = 0;
+            let staticMaxLength = 0
+            for await (const items of data){
+                if(items){
+                    total += convertToNumberOrZero(items);
+                    staticMaxLength++;
+                }
+            }
+            return total/staticMaxLength;
         }
         catch(error){
         return {

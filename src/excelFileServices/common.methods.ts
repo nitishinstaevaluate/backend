@@ -307,10 +307,12 @@ export function calculateDateDifference(dateOne:any, dateTwo:any){
 }
 export function getDiscountingPeriod(discountingPeriod: string) {
   let discountingPeriodValue = 0;
-  if (discountingPeriod === 'Full_Period' || discountingPeriod === 'Full Period') discountingPeriodValue = 1;
-  else if (discountingPeriod === 'Mid_Period' || discountingPeriod === 'Mid Period') discountingPeriodValue = 0.5;
+  const isFullPrd = discountingPeriod === 'Full_Period' || discountingPeriod === 'Full Period';
+  if (isFullPrd) discountingPeriodValue = 1;
+  else discountingPeriodValue = 0.5;
   return {
     result: discountingPeriodValue,
+    isFullPrd,
     msg: 'Discounting period get Successfully.',
   };
 }
@@ -384,6 +386,25 @@ export function formatDateHyphenToDDMMYYYY(inputDate: string): string {
     return `${day}-${month}-${year}`;
 }
 
+export function formatDateToShortForm(dateString) {
+  const date = new Date(dateString);
+  const day = date.getDate();
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sept", "Oct", "Nov", "Dec"];
+  const month = monthNames[date.getMonth()];
+  const year = date.getFullYear();
+
+  const ordinalSuffix = (n: number): string => {
+    if (n > 3 && n < 21) return "th";
+    switch (n % 10) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+    }
+  }
+  return `${day}${ordinalSuffix(day)} ${month}, ${year}`;
+}
+
 export function convertUnixTimestampToQuarterAndYear(timestamp: any) {
   const date = new Date(timestamp);
   const unixTimestamp = Math.floor(date.getTime() / 1000);
@@ -409,4 +430,36 @@ export function getRequestAuth(headers){
        authorization:headers.authorization
      }
    } 
+}
+
+export function getDateKey(obj) {
+  return Object.keys(obj).find(key => GET_DATE_MONTH_YEAR_FORMAT.test(key));
+}
+
+export function extractYearsFromKeys(obj) {
+  const yearPattern = /\b\d{4}\b/g;
+  const years = new Set();
+
+  Object.keys(obj).forEach((key,index) => {
+    /**
+     * Ignoring the first column (Just before the provisional date, [previous provisions column]) 
+     */
+    if(index !== 1){
+      const matches = key.match(yearPattern);
+      if (matches) {
+        matches.forEach(year => years.add(year.slice(-2)));
+      }
+    }
+  });
+
+  return Array.from(years).sort();
+}
+
+export function isObjectEmpty(obj) {
+  for(var prop in obj) {
+      if(obj.hasOwnProperty(prop))
+          return false;
+  }
+
+  return true;
 }

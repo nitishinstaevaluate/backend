@@ -5,484 +5,282 @@ import {
   getCellValue,
   parseDate,
   getFormattedProvisionalDate,
-  convertToNumberOrZero
+  convertToNumberOrZero,
+  getDateKey
 } from '../excelFileServices/common.methods';
-import { columnsList, sheet2_BSObj, sheet1_PLObj } from '../excelFileServices/excelSheetConfig';
+import { columnsList, sheet2_BSObj, sheet1_PLObj, V2_BS_RAW_LINE_ITEMS } from '../excelFileServices/excelSheetConfig';
 import { CustomLogger } from 'src/loggerService/logger.service';
-import { GET_MULTIPLIER_UNITS } from 'src/constants/constants';
+import { GET_MULTIPLIER_UNITS, NAV_FIELD_MAPPER } from 'src/constants/constants';
 import { computeOtherNonCurrentAssets } from './net-asset-value.method';
+import { ExcelArchiveService } from 'src/excel-archive/service/excel-archive.service';
+import { convertToRomanNumeral } from 'src/report/report-common-functions';
 const date = require('date-and-time');
 @Injectable()
 export class NetAssetValueService {
-  constructor(private readonly customLogger: CustomLogger) { }
-  async Net_Asset_Value(
-    inputs: any,
-    worksheet1: any,
-    worksheet2: any,
-    // companiesInfo: any,
-  ): Promise<any> {
-  try{
-    this.customLogger.log({
-      message: 'Request is entered into Net Asset Value Service.',
-      userId: inputs.userId,
-    });
-    const { outstandingShares, discountRateValue, valuationDate } = inputs;
-    const years = await getYearsList(worksheet1);
+  constructor(private readonly customLogger: CustomLogger,
+    private excelArchiveService: ExcelArchiveService
+  ) { }
 
-    let provisionalDates = worksheet1['B1'].v
-    let provDtRef = await parseDate(provisionalDates.trim());
-    let diffValProv = parseInt(date.subtract(new Date(inputs.valuationDate),provDtRef).toDays()); 
-    
-    let multiplier = GET_MULTIPLIER_UNITS[`${inputs.reportingUnit}`];;
-    if (years === null)
-      return {
-        result: null,
-        msg: 'Please Separate Text Label and year with comma in B1 Cell in P&L Sheet1.',
-      };
-    const year = new Date(valuationDate).getFullYear().toString();
-    const columnIndex = years.indexOf(year);
-    console.log(columnsList[columnIndex], columnIndex, year);
+  async navValuation(input: any){
+    try{
+      const processId = input?.processStateId;
+      const { balanceSheetData } = await this.getSheetData(processId);
 
-    // const column = columnsList[columnIndex];
-
-    // Read NAV Inputs
-    let fixedAssetVal, nonCurrentInvestmentVal, deferredTaxAssetVal, inventoriesVal,
-      shortTermLoanAdvancesVal, tradeReceivablesVal, cashVal, otherCurrentAssetsVal, shortTermProvisionsVal, shortTermBorrowingsVal,
-      tradePayablesVal, otherCurrentLiabilitiesVal, lessLongTermBorrowingsVal, lessLongTermProvisionsVal, shareApplicationMoneyVal, contingentLiabilityMarketVal,
-      shortTermInvestmentValAtMarket, otherNonCurrentAssetsAtMarket;
-    
-    let fixedAssetValAtBook, nonCurrentInvestmentValAtBook, deferredTaxAssetValAtBook, inventoriesValAtBook,
-      shortTermLoanAdvancesValAtBook, tradeReceivablesValAtBook, cashValAtBook, otherCurrentAssetsValAtBook, shortTermProvisionsValAtBook, shortTermBorrowingsValAtBook,
-      tradePayablesValAtBook, otherCurrentLiabilitiesValAtBook, lessLongTermBorrowingsValAtBook, lessLongTermProvisionsValAtBook, shareApplicationMoneyValAtBook,
-      shortTermInvestmentValAtBook, otherNonCurrentAssetsAtBook;
-    
-    let fixedAssetObj,nonCurrentInvestmentObj,deferredTaxAssetObj,inventoriesObj,
-    shortTermLoanAdvancesObj,tradeReceivablesObj,cashObj,otherCurrentAssetsObj,shortTermProvisionsObj,
-    shortTermBorrowingsObj,tradePayablesObj,otherCurrentLiabilitiesObj,lessLongTermBorrowingsObj,
-    lessLongTermProvisionsObj,shareApplicationMoneyObj,contingentLiabilityObj,shortTermInvestmentObj,
-    otherNonCurrentAssetsObj;
-
-    
-    for await(let resp of inputs.navInputs){ 
+      const provisionalDate  = getDateKey(balanceSheetData[0]);
       
-      switch (resp.fieldName) {
-        case ('fixedAsset'):
-          fixedAssetValAtBook = await getCellValue(
-            worksheet2,
-            //As per Nitish, fixed assets should come from net fixed assets row in BS
-            //and not from tangible assets - (29-03-2024)
-            `${columnsList[0] + sheet2_BSObj.netFixedAssetsRow}`,
-          )
-          fixedAssetVal = (resp.type === 'book_value') ? fixedAssetValAtBook : resp.value
-            
-          fixedAssetObj = {
-            fieldName: "Fixed Assets",
-            bookValue: fixedAssetValAtBook,
-            fairValue: fixedAssetVal,
-            type: resp.type
-          }
+      const balanceSheetComputed = await this.serializeArrayObject(balanceSheetData);
 
-          break;
-        // As per discussion with Nitish, since we don't have long term loans and advances in excel template, remove it
-        // case ('longTermLoansAdvances'):
-        //   longTermLoansAdvancesValAtBook = await getCellValue(
-        //     worksheet2,
-        //     `${columnsList[0] + sheet2_BSObj.otherNonCurrentAssetsRow}`,
-        //   )
-        //   longTermLoansAdvancesVal = (resp.type === 'book_value') ? longTermLoansAdvancesValAtBook : resp.value
+      const {valuePerShare, navStructure} = await this.computeNavValuation(input.navInputs, balanceSheetComputed, provisionalDate, input);
+      return {
+        result: navStructure,
+        valuation: valuePerShare,
+        provisionalDate:parseDate(provisionalDate),
+        msg: 'Net Asset Value Calculated Successfully',
+        status: true
+      };
+    }
+    catch(error){
+      throw error;
+    }
+  }
 
-        //   longTermLoansAdvancesObj = {
-        //     fieldName: "Long-term loans and advances",
-        //     bookValue: longTermLoansAdvancesValAtBook,
-        //     fairValue: longTermLoansAdvancesVal,
-        //     type: resp.type
-        //   }
+  async getSheetData(processId){
+    try{
+      const loadExcelArchive:any = await this.excelArchiveService.fetchExcelByProcessStateId(processId);
+      if(loadExcelArchive?.balanceSheetRowCount){
+        const balanceSheetData = loadExcelArchive.balanceSheetdata;
+        /**
+         * For NAV Valuation
+         * Do not need Profit-Loss & Assessment Sheet
+         */
+        return { balanceSheetData };
+      }
+      return null;
+    }
+    catch(error){
+      throw error;
+    }
+  }
 
-        //   break;
-        case ('nonCurrentInvestment'):
-          nonCurrentInvestmentValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.nonCurrentInvestmentRow}`,
-          )
-          nonCurrentInvestmentVal = (resp.type === 'book_value') ? nonCurrentInvestmentValAtBook : resp.value
+  async computeNavValuation(navInputs, balanceSheetData, provisionalDate, input){
+    let navStructure = {}, valuePerShare, node = '', root = ''; 
+    if(!navInputs?.length) throw new Error('Nav input array found to be empty');
 
-          nonCurrentInvestmentObj = {
-            fieldName: "Non Current Investments",
-            bookValue: nonCurrentInvestmentValAtBook,
-            fairValue: nonCurrentInvestmentVal,
-            type: resp.type
-          }
+    let childProcessTrck = 0, rootProcessTrck = 0;
+    for (const key in NAV_FIELD_MAPPER) {
+      const fieldInfo = NAV_FIELD_MAPPER[key];
+    
+      const matchingInput = navInputs.find(indEle => indEle.fieldName === key);
+      const boolEmptyValidator = (fieldInfo.fieldName === NAV_FIELD_MAPPER.ncaImmoveable.fieldName && (balanceSheetData[NAV_FIELD_MAPPER.ncaPlntAndMachnry.xlField]?.[provisionalDate] || balanceSheetData[NAV_FIELD_MAPPER.ncaLndAndBlding.xlField]?.[provisionalDate])) || (matchingInput?.value || balanceSheetData[fieldInfo.xlField]?.[provisionalDate]);
 
-          break;
-        case ('deferredTaxAsset'):
-          deferredTaxAssetValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.deferredTaxAssetsRow}`,
-          )
-          deferredTaxAssetVal = (resp.type === 'book_value') ?  deferredTaxAssetValAtBook: resp.value
+      if(fieldInfo?.node && node !== fieldInfo?.node) {
+        childProcessTrck = 0;
+        node = fieldInfo.node;
+      }
 
-          deferredTaxAssetObj = {
-            fieldName: "Deffered Tax Assets",
-            bookValue : deferredTaxAssetValAtBook ?? 0,
-            fairValue: deferredTaxAssetVal ?? 0,
-            type: resp.type
-          }
+      if(fieldInfo?.root && root !== fieldInfo?.root){
+        rootProcessTrck = 0;
+        root = fieldInfo.root;
+      }
 
-          break;
+      const headerAdjuster = this.validateRoot(fieldInfo, boolEmptyValidator, root) ? `(${String.fromCharCode(97 + rootProcessTrck++)}) ${fieldInfo.marker}` :  false;
+      if (matchingInput) {
+        if(!boolEmptyValidator) continue;
 
-        case ('otherNonCurrentAsset'):
-          otherNonCurrentAssetsAtBook = await computeOtherNonCurrentAssets(worksheet2);
+        const fieldIdentifier = (node === fieldInfo?.leaf)  ? `(${convertToRomanNumeral(childProcessTrck++)}) ${fieldInfo.marker}` : fieldInfo?.xlField;         
 
-          otherNonCurrentAssetsAtMarket = (resp.type === 'book_value') ?  otherNonCurrentAssetsAtBook : resp.value
+        if (!fieldInfo.alias) {
+          navStructure[key] = { 
+            fieldName: headerAdjuster || fieldIdentifier,
+            bookValue: balanceSheetData[fieldInfo.xlField]?.[provisionalDate] || 0,
+            fairValue: matchingInput?.value || (balanceSheetData[fieldInfo.xlField]?.[provisionalDate] || 0),
+            containsValue: true,
+            header:fieldInfo?.header || false,
+            subHeader:fieldInfo?.subHeader || false,
+            reqLBrk:fieldInfo?.reqLBrk || false,
+            reqUBrk:fieldInfo?.reqUBrk || false,
+            mainHead:fieldInfo.mainHead || false,
+            mainSubHead:fieldInfo.mainSubHead || false,
+            nestedSubHeader:fieldInfo.nestedSubHeader || false,
+          };
+        }
+      } else {
+          navStructure[fieldInfo.alias] = {
+            fieldName: headerAdjuster || fieldInfo.marker,
+            fairValue:await this.innerCalculation(fieldInfo.alias,navStructure, 'market_value', input),
+            bookValue:await this.innerCalculation(fieldInfo.alias,navStructure, 'book_value', input),
+            containsValue: false,
+            header:fieldInfo?.header || false,
+            subHeader:fieldInfo?.subHeader || false,
+            reqLBrk:fieldInfo?.reqLBrk || false,
+            reqUBrk:fieldInfo?.reqUBrk || false,
+            mainHead:fieldInfo.mainHead || false,
+            mainSubHead:fieldInfo.mainSubHead || false,
+            nestedSubHeader:fieldInfo.nestedSubHeader || false
+          };
 
-          otherNonCurrentAssetsObj = {
-            fieldName: "Other Non-current Assets",
-            bookValue : otherNonCurrentAssetsAtBook,
-            fairValue: otherNonCurrentAssetsAtMarket,
-            type: resp.type
-          }
-
-          break;
-        case ('inventories'):
-          inventoriesValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.inventoriesRow}`,
-          )
-          inventoriesVal = (resp.type === 'book_value') ? inventoriesValAtBook : resp.value
-
-          inventoriesObj = {
-            fieldName: "Inventories",
-            bookValue: inventoriesValAtBook ?? 0,
-            fairValue : inventoriesVal ?? 0,
-            type: resp.type
-          }
-
-          break;
-        case ('shortTermLoanAdvances'):
-          shortTermLoanAdvancesValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.advancesRow}`,
-          )
-          shortTermLoanAdvancesVal = (resp.type === 'book_value') ? shortTermLoanAdvancesValAtBook : resp.value
-
-          shortTermLoanAdvancesObj = {
-            fieldName: "Short Term Loans and Advances",
-            bookValue : shortTermLoanAdvancesValAtBook,
-            fairValue: shortTermLoanAdvancesVal,
-            type: resp.type
-          }
-
-          break;
-        case ('tradeReceivables'):
-          tradeReceivablesValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.tradeReceivablesRow}`,
-          )
-          tradeReceivablesVal = (resp.type === 'book_value') ? tradeReceivablesValAtBook : resp.value
-
-          tradeReceivablesObj = {
-            fieldName: "Trade Receivables",
-            bookValue : tradeReceivablesValAtBook,
-            fairValue: tradeReceivablesVal,
-            type: resp.type
-          }
-
-          break;
-        case ('cash'):
-          cashValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.cashEquivalentsRow}`,
-          )
-          cashVal = (resp.type === 'book_value') ? cashValAtBook : resp.value
-            
-          cashObj = {
-            fieldName: "Cash",
-            bookValue : cashValAtBook,
-            fairValue: cashVal,
-            type: resp.type
-          }
-
-          break;
-
-        case ('shortTermInvestment'):
-          shortTermInvestmentValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.shortTermInvestmentsRow}`,
-          )
-          shortTermInvestmentValAtMarket = (resp.type === 'book_value') ? shortTermInvestmentValAtBook : resp.value
-            
-          shortTermInvestmentObj = {
-            fieldName: "Short Term Investment",
-            bookValue : shortTermInvestmentValAtBook,
-            fairValue: shortTermInvestmentValAtMarket,
-            type: resp.type
-          }
-
-          break;
-
-        case ('otherCurrentAssets'):
-          otherCurrentAssetsValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.otherCurrentAssetsRow}`,
-          )
-          otherCurrentAssetsVal = (resp.type === 'book_value') ? otherCurrentAssetsValAtBook : resp.value
-
-          otherCurrentAssetsObj = {
-            fieldName: "Other Current Assets",
-            bookValue : otherCurrentAssetsValAtBook,
-            fairValue: otherCurrentAssetsVal,
-            type: resp.type
-          }
-
-          break;
-        case ('shortTermProvisions'):
-          shortTermProvisionsValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.shortTermProvisionsRow}`,
-          )
-          shortTermProvisionsVal = (resp.type === 'book_value') ? shortTermProvisionsValAtBook : resp.value
-
-          shortTermProvisionsObj = {
-            fieldName: "Less: Short Term Provisions",
-            bookValue : shortTermProvisionsValAtBook,
-            fairValue: shortTermProvisionsVal,
-            type: resp.type
-          }
-
-          break;
-        case ('shortTermBorrowings'):
-          shortTermBorrowingsValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.shortTermBorrowingsRow}`,
-          )
-          shortTermBorrowingsVal = (resp.type === 'book_value') ? shortTermBorrowingsValAtBook : resp.value
-
-          shortTermBorrowingsObj = {
-            fieldName: "Short term Borrowings",
-            bookValue: shortTermBorrowingsValAtBook ?? 0,
-            fairValue: shortTermBorrowingsVal ?? 0,
-            type: resp.type
-          }
-
-          break;
-        case ('tradePayables'):
-          tradePayablesValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.tradePayablesRow}`,
-          )
-          tradePayablesVal = (resp.type === 'book_value') ? tradePayablesValAtBook : resp.value
-
-          tradePayablesObj = {
-            fieldName: "Trade Payables",
-            bookValue: tradePayablesValAtBook,
-            fairValue: tradePayablesVal,
-            type: resp.type
-          }
-
-          break;
-        case ('otherCurrentLiabilities'):
-          
-          const deferredTaxLiability = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.deferredTaxLiabilityRow}`,
-            )
-
-            otherCurrentLiabilitiesValAtBook = (
-              await getCellValue(
-              worksheet2,
-              `${columnsList[0] + sheet2_BSObj.otherCurrentLiabilitiesRow}`,
-              ) + 
-              convertToNumberOrZero(deferredTaxLiability)
-            )
-
-          otherCurrentLiabilitiesVal = (resp.type === 'book_value') ? otherCurrentLiabilitiesValAtBook : (resp.value + convertToNumberOrZero(deferredTaxLiability))
-
-          otherCurrentLiabilitiesObj = {
-            fieldName: "Other current liabilities ",
-            bookValue : otherCurrentLiabilitiesValAtBook,
-            fairValue: otherCurrentLiabilitiesVal,
-            type: resp.type
-          }
-
-          break;
-        case ('lessLongTermBorrowings'):
-
-          const longTermBorrowings = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.longTermBorrowingsRow}`,
-          );
-
-          const otherUnsecuredLoans = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.otherUnsecuredLoansRow}`,
-          );
-
-          const longTermBrrw = longTermBorrowings + otherUnsecuredLoans;
-          
-          lessLongTermBorrowingsValAtBook = longTermBorrowings + otherUnsecuredLoans;
-
-          lessLongTermBorrowingsVal = (resp.type === 'book_value') ? longTermBrrw : resp.value;
-
-          lessLongTermBorrowingsObj = {
-            fieldName: "Less: Long Term Borrowings",
-            bookValue: lessLongTermBorrowingsValAtBook,
-            fairValue: lessLongTermBorrowingsVal,
-            type: resp.type
-          }
-
-          break;
-        case ('lessLongTermProvisions'):
-          lessLongTermProvisionsValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.longTermProvisionRow}`,
-          )
-          lessLongTermProvisionsVal = (resp.type === 'book_value') ? lessLongTermProvisionsValAtBook : resp.value
-
-          lessLongTermProvisionsObj = {
-            fieldName: "Less: Long Term Provisions",
-            bookValue : lessLongTermProvisionsValAtBook,
-            fairValue: lessLongTermProvisionsVal,
-            type: resp.type
-          }
-        break;
-
-        case ('shareApplicationMoney'):
-          shareApplicationMoneyValAtBook = await getCellValue(
-            worksheet2,
-            `${columnsList[0] + sheet2_BSObj.shareApplicationRow}`,
-          )
-          shareApplicationMoneyVal = (resp.type === 'book_value') ? shareApplicationMoneyValAtBook : resp.value
-
-          shareApplicationMoneyObj = {
-            fieldName: "Less: Share Application Money",
-            bookValue : shareApplicationMoneyValAtBook,
-            fairValue: shareApplicationMoneyVal,
-            type: resp.type
-          }
-
-          break;
-        case ('contingentLiability'):     //For now we need to add contingent liability from form since we dont have line-item for contingent liability in excel
-          contingentLiabilityMarketVal = resp.value
-
-          contingentLiabilityObj = {
-            fieldName: "Less: Contingent Liability",
-            bookValue : 0,
-            fairValue: contingentLiabilityMarketVal,
-            type: resp.type
-          }
-
-          break;
-        default:
-          console.log('Undefined fieldValue Traced')
+          if (fieldInfo.alias === NAV_FIELD_MAPPER.valuePerShare.alias) valuePerShare = navStructure[fieldInfo.alias]
       }
     }
+    return {navStructure, valuePerShare};
+  }
 
-    // Modifying Other current liabilities payload 
-    const totalNonCurrentAssets = fixedAssetVal + /* longTermLoansAdvancesVal */ + nonCurrentInvestmentVal + deferredTaxAssetVal + otherNonCurrentAssetsAtMarket;
-    const totalNonCurrentAssetsAtBook = fixedAssetValAtBook + /* longTermLoansAdvancesValAtBook */ + nonCurrentInvestmentValAtBook + deferredTaxAssetValAtBook + otherNonCurrentAssetsAtBook;
+  validateRoot(fieldInfo, boolEmptyValidator, root){
+    if(
+      (
+        root === fieldInfo?.parent &&  boolEmptyValidator
+      ) || 
+      fieldInfo?.alias === NAV_FIELD_MAPPER.subHeadPrptyPlntAndEqpmnt.alias ||
+      fieldInfo?.alias === NAV_FIELD_MAPPER.subHeadFincialLb.alias ||
+      fieldInfo?.alias === NAV_FIELD_MAPPER.subHeadFincialNLb.alias ||
+      fieldInfo?.alias === NAV_FIELD_MAPPER.subHeadFincialCAsst.alias ||
+      fieldInfo?.alias === NAV_FIELD_MAPPER.subHeadFincialNCrntAsst.alias
+      
+    ) return true;
+    return false;
+  }
+  async serializeArrayObject(array){
+    let excelArchive = {};
+    for await (const indArchive of array){
+      const {lineEntry, 'Sr no.': srNo, ...rest} = indArchive; 
+      excelArchive[indArchive.lineEntry.particulars] = rest;
+    }
+    return excelArchive;
+  }
 
-    const netCurrentAsset = inventoriesVal + shortTermLoanAdvancesVal + tradeReceivablesVal + cashVal + shortTermInvestmentValAtMarket + otherCurrentAssetsVal -
-      shortTermProvisionsVal - shortTermBorrowingsVal - tradePayablesVal - otherCurrentLiabilitiesVal;
+  async innerCalculation(label, structure, type, input){
+    const keyStruc = Object.keys(structure);
+    switch(label){
+      case NAV_FIELD_MAPPER.headTotalNCrntAsst.alias:
+        let totalOtherNoa = 0;
+        for await(const ind of keyStruc){
+          if(
+            ind === NAV_FIELD_MAPPER.ncaMoveable.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaImmoveable.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaPlntAndMachnry.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaLndAndBlding.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaCptlWrkInPrgrss.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaInvstmntPrprty.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaGoodwill.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaOthrIntngbleAsst.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaInTngbleAsstUndrDevlpmnt.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaBiolgclAsstOthrThnBrPlnt.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaRghtOfUseOfAsst.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaInvstmntInSbsidryJvAssciate.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaOthrNCrntInvstmnt.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaLngTrmLoansAndAdvncmnt.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaDffrdTxAsst.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaOthrNCrntAsst.fieldName ||
+            ind === NAV_FIELD_MAPPER.ncaDpst.fieldName
+          ){
+            if(type === 'book_value') totalOtherNoa += convertToNumberOrZero(structure[ind].bookValue);
+            if(type === 'market_value') totalOtherNoa += convertToNumberOrZero(structure[ind].fairValue);
+          }
+        }
+        return totalOtherNoa;
 
-    const netCurrentAssetAtBook = inventoriesValAtBook + shortTermLoanAdvancesValAtBook + tradeReceivablesValAtBook + cashValAtBook + shortTermInvestmentValAtBook + otherCurrentAssetsValAtBook -
-      shortTermProvisionsValAtBook - shortTermBorrowingsValAtBook - tradePayablesValAtBook - otherCurrentLiabilitiesValAtBook;  
-    
-    const firmValue = totalNonCurrentAssets + netCurrentAsset
-    const firmValueAtBook = totalNonCurrentAssetsAtBook + netCurrentAssetAtBook
-    
-    const equityValue = firmValue - lessLongTermBorrowingsVal - lessLongTermProvisionsVal - shareApplicationMoneyVal - contingentLiabilityMarketVal;
-    console.log(equityValue ,firmValue , lessLongTermBorrowingsVal,lessLongTermProvisionsVal,shareApplicationMoneyVal  );
-    const equityValueAtBook = firmValueAtBook - lessLongTermBorrowingsValAtBook - lessLongTermProvisionsValAtBook - shareApplicationMoneyValAtBook;
+      case NAV_FIELD_MAPPER.headTotalCrntAsst.alias:
+        let TtlCrntAsst = 0;
+        for await(const ind of keyStruc){
+          if(
+            ind === NAV_FIELD_MAPPER.caInvntries.fieldName || 
+            ind === NAV_FIELD_MAPPER.caCrntInvstmnt.fieldName || 
+            ind === NAV_FIELD_MAPPER.caTrdeRecvbles.fieldName || 
+            ind === NAV_FIELD_MAPPER.caCshNCshEqvlnt.fieldName || 
+            ind === NAV_FIELD_MAPPER.caBnkBlnceOthrThn.fieldName || 
+            ind === NAV_FIELD_MAPPER.caShrtTrmLoansAndAdvnces.fieldName || 
+            ind === NAV_FIELD_MAPPER.caCrntTxAsst.fieldName || 
+            ind === NAV_FIELD_MAPPER.caOthrCrntAsst.fieldName
+          ){
+            if(type === 'book_value') TtlCrntAsst += convertToNumberOrZero(structure[ind].bookValue);
+            if(type === 'market_value') TtlCrntAsst += convertToNumberOrZero(structure[ind].fairValue);
+          }
+        }
+        return TtlCrntAsst;
 
-    const noOfShares = inputs.outstandingShares;
+      case NAV_FIELD_MAPPER.headTotalAsst.alias:
+        let ttlAsst = 0;
+        for await(const ind of keyStruc){
+          if(
+            ind === NAV_FIELD_MAPPER.headTotalCrntAsst.alias || 
+            ind === NAV_FIELD_MAPPER.headTotalNCrntAsst.alias
+          ){
+            if(type === 'book_value') ttlAsst += convertToNumberOrZero(structure[ind].bookValue);
+            if(type === 'market_value') ttlAsst += convertToNumberOrZero(structure[ind].fairValue);
+          }
+        }
+        return ttlAsst;
 
-    const valuePerShare = (equityValue * multiplier) / noOfShares;
-    const valuePerShareAtBook = (equityValueAtBook * multiplier) / noOfShares;
+      case NAV_FIELD_MAPPER.headNCrntLb.alias:
+        let ttlNCrntLb = 0;
+        for await(const ind of keyStruc){
+          if(
+            ind === NAV_FIELD_MAPPER.nclBrrwng.fieldName || 
+            ind === NAV_FIELD_MAPPER.nclOthrFncialLb.fieldName || 
+            ind === NAV_FIELD_MAPPER.nclLeaseLb.fieldName || 
+            ind === NAV_FIELD_MAPPER.nclPrvisn.fieldName || 
+            ind === NAV_FIELD_MAPPER.nclDeferredTaxLb.fieldName || 
+            ind === NAV_FIELD_MAPPER.nclOthrNCrntLb.fieldName || 
+            ind === NAV_FIELD_MAPPER.nclOthrNonOprtngLB.fieldName ||
+            ind === NAV_FIELD_MAPPER.cntngntLbility.fieldName
+          ){
+            if(type === 'book_value') ttlNCrntLb += convertToNumberOrZero(structure[ind].bookValue);
+            if(type === 'market_value') ttlNCrntLb += convertToNumberOrZero(structure[ind].fairValue);
+          }
+        }
+        return ttlNCrntLb;
 
+      case NAV_FIELD_MAPPER.headTotalCrntLb.alias:
+        let ttlCrntLb = 0;
+        for await(const ind of keyStruc){
+          if(
+            ind === NAV_FIELD_MAPPER.clBrrwng.fieldName || 
+            ind === NAV_FIELD_MAPPER.clTrdePyble.fieldName || 
+            ind === NAV_FIELD_MAPPER.clOthrFncialLb.fieldName || 
+            ind === NAV_FIELD_MAPPER.clOthrCrntLb.fieldName || 
+            ind === NAV_FIELD_MAPPER.clPrvsion.fieldName || 
+            ind === NAV_FIELD_MAPPER.clCrntTxLb.fieldName
+          ){
+            if(type === 'book_value') ttlCrntLb += convertToNumberOrZero(structure[ind].bookValue);
+            if(type === 'market_value') ttlCrntLb += convertToNumberOrZero(structure[ind].fairValue);
+          }
+        }
+        return ttlCrntLb;
 
-    // ------------------------------- NAV --------------------------
+      case NAV_FIELD_MAPPER.headTotalLb.alias:
+        let ttlLb = 0;
+        for await(const ind of keyStruc){
+          if(
+            ind === NAV_FIELD_MAPPER.headNCrntLb.alias ||
+            ind === NAV_FIELD_MAPPER.headTotalCrntLb.alias 
+          ){
+            if(type === 'book_value') ttlLb += convertToNumberOrZero(structure[ind].bookValue);
+            if(type === 'market_value') ttlLb += convertToNumberOrZero(structure[ind].fairValue);
+          }
+        }
+        return ttlLb;
 
-    const finalResult = {
-      nonCurrentAssetsHeader: {
-        fieldName: "Non Current Assets",
-        value: null,
-        type: null
-      },
-      fixedAsset: fixedAssetObj,
-      // longTermLoansAdvances: longTermLoansAdvancesObj,
-      nonCurrentInvestment: nonCurrentInvestmentObj,
-      deferredTaxAsset: deferredTaxAssetObj,
-      otherNonCurrentAsset: otherNonCurrentAssetsObj,
-      totalNonCurrentAssets: {
-        fieldName: "Total Non Current Assets",
-        bookValue: totalNonCurrentAssetsAtBook,
-        fairValue: totalNonCurrentAssets,
-        type: "-"
-      },
-      netCurrentAssetHeader: {
-        fieldName: "Net Current Assets",
-        value: null,
-        type: null
-      },
-      inventories: inventoriesObj,
-      shortTermLoanAdvances: shortTermLoanAdvancesObj,
-      tradeReceivables: tradeReceivablesObj,
-      shortTermInvestment:shortTermInvestmentObj,
-      cash: cashObj,
-      otherCurrentAssets: otherCurrentAssetsObj,
-      shortTermProvisions: shortTermProvisionsObj,
-      shortTermBorrowings: shortTermBorrowingsObj,
-      tradePayables: tradePayablesObj,
-      otherCurrentLiabilities: otherCurrentLiabilitiesObj,
-      netCurrentAsset: {
-        fieldName: "Net Current Assets",
-        bookValue : netCurrentAssetAtBook,
-        fairValue: netCurrentAsset,
-        type: ""
-      },
-      firmValue: {
-        fieldName: "Firm Value",
-        value: firmValue,
-        type: "-"
-      },
-      longTermBorrowings: lessLongTermBorrowingsObj,
-      longTermProvision: lessLongTermProvisionsObj,
-      shareApplicationMoney: shareApplicationMoneyObj,
-      contingentLiability: contingentLiabilityObj,
-      equityValue: {
-        fieldName:'Equity Value',
-        bookValue : equityValueAtBook,
-        fairValue: equityValue,
-      },
-      noOfShares: {
-        fieldName: 'No. of Shares',
-        value : noOfShares,
-      },
-      valuePerShare: {
-        fieldName : `Value per share (${inputs.currencyUnit})`,
-        bookValue : valuePerShareAtBook, 
-        fairValue : valuePerShare,
-      }
-    };
-    this.customLogger.log({
-      message: 'Request is sucessfully executed in Net Asset Value Service.',
-      userId: inputs.userId,
-    });
+      case NAV_FIELD_MAPPER.headNtAsstVal.alias:
+        return type === 'book_value' ? 
+        (convertToNumberOrZero(structure.headTotalAsst.bookValue) - convertToNumberOrZero(structure.headTotalLb.bookValue)) :
+        (convertToNumberOrZero(structure.headTotalAsst.fairValue) - convertToNumberOrZero(structure.headTotalLb.fairValue));
 
-    console.log(finalResult);
-    let provisionalDate = provDtRef;
-    return {
-      result: finalResult,
-      valuation: equityValue,
-      provisionalDate,
-      msg: 'Net Asset Value Calculated Successfully',
-      status: true
-    };
+      case NAV_FIELD_MAPPER.valuePerShare.alias:
+        const multiplier = GET_MULTIPLIER_UNITS[`${input.reportingUnit}`];
+        return type === 'book_value' ? 
+        convertToNumberOrZero(structure.headNtAsstVal.bookValue) * multiplier/convertToNumberOrZero(structure.noOfShrs.bookValue) : 
+        convertToNumberOrZero(structure.headNtAsstVal.fairValue) * multiplier/convertToNumberOrZero(structure.noOfShrs.fairValue);
+
+      case NAV_FIELD_MAPPER.noOfShrs.alias:
+        return input.outstandingShares;
+
+      default: 
+        return null
+    }
+
   }
   catch(error){
     console.log("Net Asset Error:",error);
     throw error;
   }
-  }
-
 }

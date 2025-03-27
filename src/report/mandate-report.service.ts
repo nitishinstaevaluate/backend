@@ -150,6 +150,13 @@ export class mandateReportService {
               })
               return overallSectionsWithPurposes.join(' and ');
           });
+
+          hbs.registerHelper('isInternalAssessment',()=>{
+            if(mandateDetails.purposeOfReport.includes('internalAssessment') && mandateDetails.purposeOfReport.length === 1){
+              return true;
+            }
+            return false;
+          })
           
         }
         catch(error){

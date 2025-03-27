@@ -15,7 +15,7 @@ import { ExcelSheetService } from 'src/excelFileServices/uploadExcel.service';
 import { AuthenticationService } from 'src/authentication/authentication.service';
 import { JwtModule } from '@nestjs/jwt';
 import { UsersModule } from 'src/users/users.module';
-import { ProcessStatusManagerService } from 'src/processStatusManager/process-status-manager.service';
+import { ProcessStatusManagerService } from 'src/processStatusManager/service/process-status-manager.service';
 import { ProcessManagerSchema } from 'src/processStatusManager/schema/process-status-manager.schema';
 import { ValuationSchema } from 'src/valuationProcess/schema/valuation.schema';
 import { utilsService } from 'src/utils/utils.service';
@@ -31,9 +31,16 @@ import { mrlReportService } from './mrl-report.service';
 import { thirdpartyApiAggregateService } from 'src/library/thirdparty-api/thirdparty-api-aggregate.service';
 import { navReportService } from './nav-report.service';
 import { financialHelperService } from './helpers/financial-helpers.service';
+import { ExcelArchiveModule } from 'src/excel-archive/excel-archive.module';
+import { ExcelArchiveService } from 'src/excel-archive/service/excel-archive.service';
+import { ExcelArchiveSchema } from 'src/excel-archive/schema/excel-archive.schema';
+import { FieldValidationService } from 'src/processStatusManager/service/field-validation.service';
+import { FieldValidationSchema } from 'src/processStatusManager/schema/field-validation.shema';
 
 @Module({
-  providers: [ReportService,CalculationService,CustomLogger,ElevenUaService,ExcelSheetService,sebiReportService, AuthenticationService, ProcessStatusManagerService, utilsService,HistoricalReturnsService, mandateReportService, mrlReportService, thirdpartyApiAggregateService, navReportService, financialHelperService],
+  providers: [ReportService,CalculationService,CustomLogger,ElevenUaService,ExcelSheetService,sebiReportService, AuthenticationService, 
+    ProcessStatusManagerService, utilsService,HistoricalReturnsService, mandateReportService, mrlReportService, thirdpartyApiAggregateService,
+     navReportService, financialHelperService, ExcelArchiveService, FieldValidationService],
   controllers: [ReportController],
   imports:[ValuationProcessModule,LoggerModule,
     MongooseModule.forFeature(
@@ -50,6 +57,8 @@ import { financialHelperService } from './helpers/financial-helpers.service';
           { name: 'riskFreeRate', schema : RiskFreeRateSchema},
           { name: 'dataChecklist', schema: DataCheckListSchema },
           { name: 'mandate', schema: MandateSchema },
+          { name: 'excelArchive', schema: ExcelArchiveSchema },
+          { name: 'fieldValidation', schema: FieldValidationSchema },
       ]
     ),
     UsersModule,

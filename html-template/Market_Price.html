@@ -5,535 +5,138 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-         * {
-            margin: 0;
-            padding: 0;
-            text-indent: 0;
-            font-family: 'Roboto', sans-serif !important;
-            font-size: 15px !important;
-        }
-
-        .h1 {
-            color: black;
-            font-family: Georgia, serif;
-            font-style: italic;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 20pt;
-        }
-
-        .s1 {
-            color: black;
-            font-family: Georgia, serif;
-            font-style: italic;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 20pt;
-        }
-
-        .h2 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 18pt;
-        }
-
-        .s2 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: italic;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 18pt;
-        }
-
-        .s3 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        .s4 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        .s5 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        .p,
-        p {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 13pt;
-            margin: 0pt;
-        }
-
-        .h3,
-        h3 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: underline;
-            font-size: 13pt;
-        }
-
-        .s6 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: underline;
-            font-size: 13pt;
-        }
-
-        .s7 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        .s8 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        .s9 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        .s10 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 8.5pt;
-            vertical-align: 4pt;
-        }
-
-        .s11 {
-            color: black;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-        }
-
-        .s12 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: underline;
-            font-size: 13pt;
-        }
-
-        .s13 {
-            color: black;
+         body {
             font-family: Arial, sans-serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 11pt;
+            /* background-color: #f0f0f0; */
+            margin-top: 6%;
+            padding: 0;
         }
 
-        .s14 {
-            color: #FFF;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 10.5pt;
+        .container {
+            margin: 0 auto;
+            max-width: 800px;
+            padding: 20px;
+            background-color: transparent;
+            /* box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); */
+            padding-top: 0px;
+            margin: 5%;
+        }
+        .container-top {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            font-size: 16px;
+        }
+        .column {
+            width: 45%; /* Adjust the width as needed */
+            padding: 10px;
+            /* background-color: #f9f9f9; */
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-bottom: 5px;
         }
 
-        .s15 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 10.5pt;
-        }
 
-        .s16 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 10.5pt;
-        }
-
-        .s17 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: italic;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        .s18 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: italic;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        .s19 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: italic;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        .s20 {
-            color: black;
-            font-family: Calibri, sans-serif;
-            font-style: italic;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 7pt;
-        }
-
-        .s21 {
-            color: #FFF;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 7pt;
-        }
-
-        .s22 {
-            color: black;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 7pt;
-        }
-
-        .s23 {
-            color: black;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 7pt;
-        }
-
-        .s24 {
-            color: black;
-            font-family: Calibri, sans-serif;
-            font-style: italic;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 9pt;
-        }
-
-        .s25 {
-            color: #FFF;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 9.5pt;
-        }
-
-        .s26 {
-            color: black;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 9.5pt;
-        }
-
-        .s27 {
-            color: black;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 9.5pt;
+        h1 {
+            text-align: center;
+            color: #333;
         }
 
         h4 {
-            color: black;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 9.5pt;
+            text-align: center;
+            color: #333;
         }
 
-        .s28 {
-            color: #FFF;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 10.5pt;
+        p {
+            text-align: justify;
+            line-height: 1.5;
+            margin: 0;
         }
 
-        .s29 {
-            color: black;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 10.5pt;
-        }
-
-        .s30 {
-            color: black;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 10.5pt;
-        }
-
-        .s31 {
-            color: black;
-            font-family: Calibri, sans-serif;
-            font-style: italic;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 8pt;
-        }
-
-        .s32 {
-            color: #FFF;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 8pt;
-        }
-
-        .s33 {
-            color: black;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 8pt;
-        }
-
-        .s34 {
-            color: black;
-            font-family: Calibri, sans-serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 8pt;
-        }
-
-        .s35 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        .s36 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 11pt;
-        }
-
-        .s37 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 11pt;
-        }
-
-        .s38 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 11pt;
-        }
-
-        .s39 {
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 11pt;
-        }
-
-        li {
-            display: block;
-        }
-
-        #l1 {
-            padding-left: 0pt;
-        }
-
-        #l1>li>*:first-child:before {
-            content: "● ";
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        li {
-            display: block;
-        }
-
-        #l2 {
-            padding-left: 0pt;
-        }
-
-        #l2>li>*:first-child:before {
-            content: "● ";
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        #l3 {
-            padding-left: 0pt;
-        }
-
-        #l3>li>*:first-child:before {
-            content: "- ";
-            color: black;
-            font-family: "Courier New", monospace;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        #l4 {
-            padding-left: 0pt;
-        }
-
-        #l4>li>*:first-child:before {
-            content: "o ";
-            color: black;
-            font-family: "Courier New", monospace;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        #l5 {
-            padding-left: 0pt;
-            counter-reset: e1 1;
-        }
-
-        #l5>li>*:first-child:before {
-            counter-increment: e1;
-            content: counter(e1, lower-latin)") ";
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        #l5>li:first-child>*:first-child:before {
-            counter-increment: e1 0;
-        }
-
-        #l6 {
-            padding-left: 0pt;
-            counter-reset: f1 1;
-        }
-
-        #l6>li>*:first-child:before {
-            counter-increment: f1;
-            content: counter(f1, lower-latin)") ";
-            color: black;
-            font-family: "Times New Roman", serif;
-            font-style: normal;
-            font-weight: normal;
-            text-decoration: none;
-            font-size: 13pt;
-        }
-
-        #l6>li:first-child>*:first-child:before {
-            counter-increment: f1 0;
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
         }
 
         table,
-        tbody {
-            vertical-align: top;
-            overflow: visible;
+        th,
+        td {
+            border: 1px solid #c1c1c1;
+        }
+
+        th,
+        td {
+            padding: 5px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #001F5F;
+            color: #fff;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+        tr{
+            font-size: 13px !important;
+        }
+        .responsive-table {
+        width: 100%;
+        padding: 5px !important;
+        }
+
+        /* .responsive-table {
+            word-break: break-all;
+            } */
+
+            @page rotated {
+            size: landscape;
+            }
+
+        .rotated_class {
+        page: rotated;
         }
     </style>
 </head>
 <body>
     
-    <div style="page-break-before: always;padding-left: 5%;padding-right: 5%;padding-top: 9%;">
-        <table style="border-collapse:collapse;margin:auto;width:100%" cellspacing="0">
-            <tr style="height:27pt">
-                <td style="width:451pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    colspan="5">
-                    <p style="padding-top: 5pt;padding-left: 5pt;text-indent: 0pt;text-align: center;"><span
-                            class="s7">Valuation of equity shares of </span><span class="s9">{{companyName}}</span><span class="s7"> using Market Price method</span>
-                    </p>
-                </td>
-            </tr>
+    <div style="page-break-before: always;padding-top: 5%;" class="container">
+        <h4>Valuation Report</h1>
+
+            <div class="container-top">
+                <div class="column">
+                    <p style="font-size: 13px !important;"><strong>Company: {{companyName}}</strong></p>
+                    <p style="font-size: 13px !important;"><strong>Valuation Date:</strong> {{strdate}}</p>
+                    <p style="font-size: 13px !important;"><strong>Method:</strong> Market Price Method</p>
+                </div>
+                <div class="column">
+                    <p style="font-size: 13px !important;"><a href="mailto:nitish@ifinworth.com"><strong>Generated By:</strong> 
+                        {{#if (ifMB01)}}
+                         Navigant Corporate Advisors Limited
+                        {{else}}
+                         Nitish Chaturvedi
+                        {{/if}}
+                    </a></p>
+                    <p style="font-size: 13px !important;"><strong>Generated On:</strong> {{generatedOn}}</p>
+                    <p style="font-size: 13px !important;"><strong>Currency:</strong> All figures in <span style="text-transform: uppercase;">{{currencyUnit}}</span> <span style="text-transform: capitalize;">{{reportingUnit}}</span></p>
+                </div>
+            </div>
+
+        <table style="border-collapse:collapse;margin:auto;width:100%;padding-top: 4%;" cellspacing="0">
+            <thead>
+                <tr style="height:27pt">
+                    <th colspan="6" style="font-size: 13px;padding: 1%;text-align: center;">
+                        <span class="s7">Valuation of equity shares of </span><span class="s9">{{companyName}}</span><span class="s7"> using Market Price method</span>
+                    </th>
+                </tr>
+            </thead>
             <tr style="height:16pt">
                 <td style="width:28pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
                     rowspan="4">
@@ -550,7 +153,11 @@
                 </td>
                 <td
                     style="width:77pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p class="s7" style="padding-left: 5pt;text-indent: 0pt;line-height: 14pt;text-align: left;">VWAP</p>
+                    <p class="s7" style="padding-left: 5pt;text-indent: 0pt;line-height: 14pt;text-align: right;">VWAP (NSEI)</p>
+                </td>
+                <td
+                    style="width:77pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                    <p class="s7" style="padding-left: 5pt;text-indent: 0pt;line-height: 14pt;text-align: right;">VWAP (BSE)</p>
                 </td>
                 <td style="width:29pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
                     rowspan="4">
@@ -569,7 +176,11 @@
                 </td>
                 <td
                     style="width:77pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="padding-right: 4pt;text-indent: 0pt;line-height: 14pt;text-align: right;"><span class="s8">{{vwap90Days}}</span></p>
+                    <p style="padding-right: 4pt;text-indent: 0pt;line-height: 14pt;text-align: right;"><span class="s8">{{vwap90DaysNSE}}</span></p>
+                </td>
+                <td
+                    style="width:77pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                    <p style="padding-right: 4pt;text-indent: 0pt;line-height: 14pt;text-align: right;"><span class="s8">{{vwap90DaysBSE}}</span></p>
                 </td>
             </tr>
             <tr style="height:16pt">
@@ -584,27 +195,35 @@
                 </td>
                 <td
                     style="width:77pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="padding-right: 4pt;text-indent: 0pt;line-height: 14pt;text-align: right;"><span class="s8">{{vwap10Days}}</span></p>
+                    <p style="padding-right: 4pt;text-indent: 0pt;line-height: 14pt;text-align: right;"><span class="s8">{{vwap10DaysNSE}}</span></p>
+                </td>
+                <td
+                    style="width:77pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                    <p style="padding-right: 4pt;text-indent: 0pt;line-height: 14pt;text-align: right;"><span class="s8">{{vwap10DaysBSE}}</span></p>
                 </td>
             </tr>
             <tr style="height:15pt">
                 <td style="width:317pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
                     colspan="2">
-                    <p class="s7" style="padding-left: 74pt;text-indent: 0pt;line-height: 14pt;text-align: left;">Floor
+                    <p class="s7" style="padding-left: 74pt;text-indent: 0pt;line-height: 14pt;text-align: left;font-weight: bold;">Floor
                         Price (Higher of A or B)</p>
                 </td>
                 <td
                     style="width:77pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p style="padding-right: 4pt;text-indent: 0pt;line-height: 14pt;text-align: right;"><span class="s9">{{floorPriceVwap}}</span></p>
+                    <p style="padding-right: 4pt;text-indent: 0pt;line-height: 14pt;text-align: right;font-weight: bold;"><span class="s9">{{floorPriceVwapNSE}}</span></p>
+                </td>
+                <td
+                    style="width:77pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                    <p style="padding-right: 4pt;text-indent: 0pt;line-height: 14pt;text-align: right;font-weight: bold;"><span class="s9">{{floorPriceVwapBSE}}</span></p>
                 </td>
             </tr>
             <tr style="height:42pt">
                 <td style="width:451pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    colspan="5">
+                    colspan="6">
                     <p style="padding-top: 5pt;padding-left: 5pt;text-indent: 0pt;text-align: left;"><span class="s35">Based
                             on the above computation, we understand that the value of equity shares of </span><span
                             class="s8">{{companyName}}</span><span class="s35"> can be considered at
-                        </span><span class="s7">INR </span><span class="s9">{{floorPriceVwap}}</span>
+                        </span><span class="s7">INR </span><span class="s9">{{floorPriceVwapNSE}}</span> & INR {{floorPriceVwapBSE}}
                         <span class="s35">per equity share.</span>
                     </p>
                 </td>
@@ -613,201 +232,130 @@
     </div>
 
     <!-- First 30 elements starts -->
-    <div style="padding-left: 5%;padding-right: 5%;padding-top: 2%;">
-    <table style="border-collapse:collapse;margin:auto;width:100%" cellspacing="0">
-        <tr style="height:50pt">
-            <td style="width:451pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                colspan="10">
-                <p style="padding-top: 5pt;padding-left: 5pt;padding-right: 4pt;text-indent: 0pt;text-align: justify;">
-                    <span class="s7">Volume weighted average price (VWAP) of the equity shares of </span>
-                    <span class="s9" style="text-transform: capitalize;">{{companyName}}</span>
-                    <span class="s7"> 
-                        quoted on
-                        the NSE (Relevant Stock Exchange) during the 90 trading days preceding the relevant date
-                        (considering relevant date as {{relevantDate}})
-                    </span>
-                </p>
-            </td>
-        </tr>
-        <tr style="height:15pt">
-            <td
-                style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p class="s36"
-                    style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">
-                    S.No.</p>
-            </td>
-            <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                >
-                <p class="s36"
-                    style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">Date
-                </p>
-            </td>
-            <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                >
-                <p class="s36"
-                    style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">
-                    Volume of traded shares</p>
-            </td>
-            <td
-                style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                <p class="s36"
-                    style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">
-                    Total Turnover (Rs.)</p>
-            </td>
-        </tr>
-        {{#each (sharePriceDataF30 data)}}
-            <tr style="height:15pt;">
-                <td
-                    style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">{{SERIALNO}}
-                    </p>
-                </td>
-                <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right: 1px solid black;">
-                    <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">{{updateDateFormat PRICINGDATE}}
-                    </p>
-                </td>
-                <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
-                    <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">{{formatPositiveAndNegativeNumber VOLUME}}</p>
-                </td>
-                <td
-                    style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">
-                        {{totalRevenue VWAP VOLUME}}
-                    </p>
-                </td>
-            </tr>
-        {{/each}}
-    </table>
-    </div>
-    <!-- First 40 elements ends -->
-
-    {{#if (sharePriceDataN40Length)}}
-    <!-- Second 40 elements starts -->
-    <div style="page-break-before: always;padding-top: 9%;padding-left: 5%;padding-right: 5%;">
-        <table style="border-collapse:collapse;margin:auto;width:100%;" cellspacing="0">
-            <tr style="height:15pt">
-                <td
-                    style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p class="s36"
-                        style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">
-                        S.No.</p>
-                </td>
-                <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    >
-                    <p class="s36"
-                        style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">Date
-                    </p>
-                </td>
-                <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    >
-                    <p class="s36"
-                        style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">
-                        Volume of traded shares</p>
-                </td>
-                <td
-                    style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p class="s36"
-                        style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">
-                        Total Turnover (Rs.)</p>
-                </td>
-            </tr>
-            {{#each (sharePriceDataN40 data)}}
-                <tr style="height:15pt;">
-                    <td
-                        style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">{{SERIALNO}}
-                        </p>
-                    </td>
-                    <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right: 1px solid black;">
-                        <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">{{updateDateFormat PRICINGDATE}}
-                        </p>
-                    </td>
-                    <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
-                        <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">{{formatPositiveAndNegativeNumber VOLUME}}</p>
-                    </td>
-                    <td
-                        style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">
-                            {{totalRevenue VWAP VOLUME}}
-                        </p>
-                    </td>
+     <div class="container" style="page-break-before: always;padding-top: 5%;">
+         <table style="border-collapse:collapse;margin:auto;width:100%;" cellspacing="0">
+             <thead>
+                 <tr style="height:50pt">
+                     <td style="width:451pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
+                         colspan="6">
+                         <p style="padding-top: 5pt;padding-left: 5pt;padding-right: 4pt;text-indent: 0pt;text-align: justify;">
+                             <span class="s7">Volume weighted average price (VWAP) of the equity shares of </span>
+                             <span class="s9" style="text-transform: capitalize;">{{companyName}}</span>
+                             <span class="s7"> 
+                                 quoted on
+                                 the NSE (Relevant Stock Exchange) during the 90 trading days preceding the relevant date
+                                 (considering relevant date as {{relevantDate}})
+                             </span>
+                         </p>
+                     </td>
+                 </tr>
+                <tr>
+                  <th style="font-size: 13px;padding: 1%;">S.No.</th>
+                  <th style="font-size: 13px;padding: 1%;">Date</th>
+                  <th style="font-size: 13px;padding: 1%;">Volume of traded shares (NSEI)</th>
+                  <th style="font-size: 13px;padding: 1%;">Volume of traded shares (BSE)</th>
+                  <th style="font-size: 13px;padding: 1%;">Total Turnover (Rs.) (NSEI)</th>
+                  <th style="font-size: 13px;padding: 1%;">Total Turnover (Rs.) (BSE)</th>
                 </tr>
+            </thead>
+             {{#each (sharePriceDataF30 data)}}
+             <tbody>
+                <tr style="height: 20px;">
+                    <td>{{SERIALNO}}</td>
+                    <td style="width: 25%;">{{updateDateFormat PRICINGDATE}}</td>
+                    <td>{{formatValue VOLUMENSE}}</td>
+                    <td>{{formatValue VOLUMEBSE}}</td>
+                    <td>{{formatValue TOTALREVENUENSE}}</td>
+                    <td>{{formatValue TOTALREVENUEBSE}}</td>
+                </tr>
+            </tbody>
+             {{/each}}
+         </table>
+     </div>
+    <!-- First 30 elements ends -->
+
+    {{#if (sharePriceDataN30Length)}}
+    <!-- Second 30 elements starts -->
+    <div class="container" style="page-break-before: always;padding-top: 4%;">
+        <table style="border-collapse:collapse;margin:auto;width:100%;" cellspacing="0">
+            <thead>
+                <tr>
+                    <th style="font-size: 13px;padding: 1%;">S.No.</th>
+                    <th style="font-size: 13px;padding: 1%;">Date</th>
+                    <th style="font-size: 13px;padding: 1%;">Volume of traded shares (NSEI)</th>
+                    <th style="font-size: 13px;padding: 1%;">Volume of traded shares (BSE)</th>
+                    <th style="font-size: 13px;padding: 1%;">Total Turnover (Rs.) (NSEI)</th>
+                    <th style="font-size: 13px;padding: 1%;">Total Turnover (Rs.) (BSE)</th>
+                </tr>
+            </thead>
+            {{#each (sharePriceDataN30 data)}}
+                <tbody>
+                    <tr style="height: 20px;">
+                        <td>{{SERIALNO}}</td>
+                        <td style="width: 25%;">{{updateDateFormat PRICINGDATE}}</td>
+                        <td>{{formatValue VOLUMENSE}}</td>
+                        <td>{{formatValue VOLUMEBSE}}</td>
+                        <td>{{formatValue TOTALREVENUENSE}}</td>
+                        <td>{{formatValue TOTALREVENUEBSE}}</td>
+                    </tr>
+                </tbody>
             {{/each}}
         </table>
     </div>
-    <!-- Second 40 elements ends -->
+    <!-- Second 30 elements ends -->
     {{/if}}
 
     <!-- Remaining elements starts -->
-    <div style="page-break-before: always;padding-top: 9%;padding-left: 5%;padding-right: 5%;">
+    {{#if (sharePriceDataRemainingLength)}}
+    <div style="page-break-before: always;padding-top: 3%;" class="container">
         <table style="border-collapse:collapse;margin:auto;width:100%;" cellspacing="0">
-            {{#if (sharePriceDataRemainingLength)}}
-            <tr style="height:15pt">
-                <td
-                    style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p class="s36"
-                        style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">
-                        S.No.</p>
-                </td>
-                <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    >
-                    <p class="s36"
-                        style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">Date
-                    </p>
-                </td>
-                <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                    >
-                    <p class="s36"
-                        style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">
-                        Volume of traded shares</p>
-                </td>
-                <td
-                    style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p class="s36"
-                        style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">
-                        Total Turnover (Rs.)</p>
-                </td>
-            </tr>
-            {{#each (sharePriceDataRemaining data)}}
-                <tr style="height:15pt;">
-                    <td
-                        style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">{{SERIALNO}}
-                        </p>
-                    </td>
-                    <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right: 1px solid black;">
-                        <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">{{updateDateFormat PRICINGDATE}}
-                        </p>
-                    </td>
-                    <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
-                        <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">{{formatPositiveAndNegativeNumber VOLUME}}</p>
-                    </td>
-                    <td
-                        style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">
-                            {{totalRevenue VWAP VOLUME}}
-                        </p>
-                    </td>
+            <thead>
+                <tr>
+                    <th style="font-size: 13px;padding: 1%;">S.No.</th>
+                    <th style="font-size: 13px;padding: 1%;">Date</th>
+                    <th style="font-size: 13px;padding: 1%;">Volume of traded shares (NSEI)</th>
+                    <th style="font-size: 13px;padding: 1%;">Volume of traded shares (BSE)</th>
+                    <th style="font-size: 13px;padding: 1%;">Total Turnover (Rs.) (NSEI)</th>
+                    <th style="font-size: 13px;padding: 1%;">Total Turnover (Rs.) (BSE)</th>
                 </tr>
+            </thead>
+            {{#each (sharePriceDataRemaining data)}}
+                <tbody>
+                    <tr style="height: 20px;">
+                        <td>{{SERIALNO}}</td>
+                        <td style="width: 25%;">{{updateDateFormat PRICINGDATE}}</td>
+                        <td>{{formatValue VOLUMENSE}}</td>
+                        <td>{{formatValue VOLUMEBSE}}</td>
+                        <td>{{formatValue TOTALREVENUENSE}}</td>
+                        <td>{{formatValue TOTALREVENUEBSE}}</td>
+                    </tr>
+                </tbody>
             {{/each}}
-            {{/if}}
             <tr style="height:15pt;">
-                <td colspan="3" style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                    <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">VWAP of 90 trading days (INR)
+                <td colspan="4" style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                    <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">VWAP of 90 trading days ({{currencyUnit}})
                     </p>
                 </td>
                 <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right: 1px solid black;">
-                    <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">{{vwap90Days}}
+                    <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">{{vwap90DaysNSE}}
                     </p>
                 </td>
-                
+                <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right: 1px solid black;">
+                    <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">{{vwap90DaysBSE}}
+                    </p>
+                </td>
             </tr>
         </table>
-        <div style="padding-top: 2%;">
-            <table style="border-collapse:collapse;margin:auto;width:100%" cellspacing="0">
+    </div>
+    {{/if}}
+    <!-- Remaining elements ends -->
+
+    <div class="container" style="page-break-before: always;padding-top: 8%;">
+        <table style="border-collapse:collapse;margin:auto;width:100%" cellspacing="0">
+            <thead>
                 <tr style="height:57pt">
                     <td style="width:451pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt"
-                        colspan="4">
+                        colspan="6">
                         <p style="padding-top: 5pt;padding-left: 5pt;padding-right: 4pt;text-indent: 0pt;text-align: justify;">
                             <span class="s7">Volume weighted average price (VWAP) of the equity shares of </span><span
                                 class="s9">{{companyName}}</span><span class="s7"> quoted on the NSE
@@ -815,64 +363,42 @@
                                 relevant date as </span><span class="s9">{{relevantDate}}</span><span class="s7">)</span></p>
                     </td>
                 </tr>
-                <tr style="height:15pt">
-                    <td
-                        style="width:48pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">
-                            S.No.</p>
-                    </td>
-                    <td style="width:102pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">Date
-                        </p>
-                    </td>
-                    <td
-                        style="width:163pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">
-                            Volume of traded shares</p>
-                    </td>
-                    <td
-                        style="width:127pt;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                        <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">
-                            Total Turnover (Rs.)</p>
-                    </td>
+                <tr style="height: 20px;">
+                    <th style="font-size: 13px;padding: 1%;">S.No.</th>
+                    <th style="font-size: 13px;padding: 1%;">Date</th>
+                    <th style="font-size: 13px;padding: 1%;">Volume of traded shares (NSEI)</th>
+                    <th style="font-size: 13px;padding: 1%;">Volume of traded shares (BSE)</th>
+                    <th style="font-size: 13px;padding: 1%;">Total Turnover (Rs.) (NSEI)</th>
+                    <th style="font-size: 13px;padding: 1%;">Total Turnover (Rs.) (BSE)</th>
                 </tr>
-                
-                {{#each (sharePriceDataF10 data)}}
-                        <tr style="height:15pt;">
-                            <td
-                                style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">{{SERIALNO}}
-                                </p>
-                            </td>
-                            <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right: 1px solid black;">
-                                <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">{{updateDateFormat PRICINGDATE}}
-                                </p>
-                            </td>
-                            <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt">
-                                <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">{{formatPositiveAndNegativeNumber VOLUME}}</p>
-                            </td>
-                            <td
-                                style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                                <p class="s36" style="text-align: center;font-size: 13px !important;padding: 1%;font-weight: normal;">
-                                    {{totalRevenue VWAP VOLUME}}
-                                </p>
-                            </td>
-                        </tr>
-                    {{/each}}
-                    <tr style="height:15pt;">
-                        <td colspan="3" style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
-                            <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">VWAP of 10 trading days (INR)
-                            </p>
-                        </td>
-                        <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right: 1px solid black;">
-                            <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">{{vwap10Days}}
-                            </p>
-                        </td>
-                        
+            </thead>
+            {{#each (sharePriceDataF10 data)}}
+                <tbody>
+                    <tr style="height: 17px;">
+                        <td>{{SERIALNO}}</td>
+                        <td style="width: 25%;">{{updateDateFormat PRICINGDATE}}</td>
+                        <td>{{formatValue VOLUMENSE}}</td>
+                        <td>{{formatValue VOLUMEBSE}}</td>
+                        <td>{{formatValue TOTALREVENUENSE}}</td>
+                        <td>{{formatValue TOTALREVENUEBSE}}</td>
                     </tr>
-            </table>
-        </div>
+                </tbody>
+            {{/each}}
+            <tr style="height:15pt;">
+                <td colspan="4" style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-left-style:solid;border-left-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right-style:solid;border-right-width:1pt">
+                    <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">VWAP of 10 trading days ({{currencyUnit}})
+                    </p>
+                </td>
+                <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right: 1px solid black;">
+                    <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">{{vwap10DaysNSE}}
+                    </p>
+                </td>
+                <td style="width:auto !important;border-top-style:solid;border-top-width:1pt;border-bottom-style:solid;border-bottom-width:1pt;border-right: 1px solid black;">
+                    <p class="s36" style="text-align: center;font-size: 14px;font-weight: bold;color: #494949;">{{vwap10DaysBSE}}
+                    </p>
+                </td>
+            </tr>
+        </table>
     </div>
-    <!-- Remaining elements ends -->
 </body>
 </html>

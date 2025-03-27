@@ -135,7 +135,7 @@ export class utilsService {
   }
 
   constructQuery(userId: string, query?: string): FilterQuery<any> {
-    const baseQuery: FilterQuery<any> = { "userId": userId };
+    const baseQuery: FilterQuery<any> = { "userId": userId, "isDeleted": false };
   
     if (query && query !== undefined && query !== 'undefined') {
       baseQuery["$or"] = [

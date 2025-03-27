@@ -50,7 +50,7 @@ const setupAxiosInterceptor = (axiosInstance: AxiosInstance) => {
       if (error.response) {
         logger.error(`[${currentDateIST}] | Axios Response Error | ${error.response.status} | ${error.config.method?.toUpperCase()} | ${error.config.url} | ${error.response?.data ? JSON.stringify({error:error.response?.data}) : {}}`);
       } else if (error.request) {
-        logger.error(`[${currentDateIST}] | Axios Request Error | ${error.response.status} | ${error.config.method?.toUpperCase()} | ${error.config.url} | ${error.request} | ${error.response?.data ? JSON.stringify({error:error.response?.data}) : {}}`);
+        logger.error(`[${currentDateIST}] | Axios Request Error | ${error.response?.status} | ${error.config.method?.toUpperCase()} | ${error.config.url} | ${error.request} | ${error.response?.data ? JSON.stringify({error:error.response?.data}) : {}}`);
       } else {
         logger.error(`[${currentDateIST}] | Axios Error | ${error.response.status} | ${error.config.method?.toUpperCase()} | ${error.config.url} | ${error.message} | ${error.response?.data ? JSON.stringify({error:error.response?.data}) : {}}`);
       }
